@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>DIEFER.Tests</AssemblyName>
+    <RootNamespace>DIEFER.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
+    <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />
+    <ProjectReference Include="..\DIEFER.DAL\DIEFER.DAL.csproj" />
+    <ProjectReference Include="..\DIEFER.BLL\DIEFER.BLL.csproj" />
+  </ItemGroup>
+</Project>

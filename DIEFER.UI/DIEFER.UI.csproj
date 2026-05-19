@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>DIEFER</AssemblyName>
+    <RootNamespace>DIEFER.UI</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
+    <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />
+    <ProjectReference Include="..\DIEFER.BLL\DIEFER.BLL.csproj" />
+  </ItemGroup>
+</Project>
