@@ -16,9 +16,10 @@ namespace DIEFER.UI
             string appDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             AppDomain.CurrentDomain.SetData("DataDirectory", appDir);
 
-            // Inicializar conexión y base de datos (crea tablas + admin semilla si no existen)
+            // Inicializar cadena de conexión.
+            // La base de datos debe crearse previamente ejecutando DIEFER_Setup.sql.
             ConexionDB_593CM.Inicializar_593CM(ConfigManager_593CM.ConnectionString_593CM);
-            DatabaseInitializer_593CM.InicializarBD_593CM();
+            // DatabaseInitializer_593CM.InicializarBD_593CM(); // reemplazado por DIEFER_Setup.sql
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

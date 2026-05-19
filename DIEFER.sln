@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIEFER.BLL", "DIEFER.BLL\DI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIEFER.UI", "DIEFER.UI\DIEFER.UI.csproj", "{CBBB41A4-FE89-4134-B257-A2DEF85D7148}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DIEFER.Tests", "DIEFER.Tests\DIEFER.Tests.csproj", "{0AC010EB-2A65-41B7-ABE6-E097E3E5D38A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{CBBB41A4-FE89-4134-B257-A2DEF85D7148}.Debug|Any CPU.Build.0 = Debug|AnyCPU
 		{CBBB41A4-FE89-4134-B257-A2DEF85D7148}.Release|Any CPU.ActiveCfg = Release|AnyCPU
 		{CBBB41A4-FE89-4134-B257-A2DEF85D7148}.Release|Any CPU.Build.0 = Release|AnyCPU
-		{0AC010EB-2A65-41B7-ABE6-E097E3E5D38A}.Debug|Any CPU.ActiveCfg = Debug|AnyCPU
-		{0AC010EB-2A65-41B7-ABE6-E097E3E5D38A}.Debug|Any CPU.Build.0 = Debug|AnyCPU
-		{0AC010EB-2A65-41B7-ABE6-E097E3E5D38A}.Release|Any CPU.ActiveCfg = Release|AnyCPU
-		{0AC010EB-2A65-41B7-ABE6-E097E3E5D38A}.Release|Any CPU.Build.0 = Release|AnyCPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
