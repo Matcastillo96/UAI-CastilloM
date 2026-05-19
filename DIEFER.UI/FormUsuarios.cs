@@ -265,15 +265,61 @@ namespace DIEFER.UI
         private void EjecutarDesbloquear_593CM()
         {
             if (_dniSeleccionado_593CM == null) { MostrarError_593CM("Seleccione un usuario bloqueado."); return; }
-            bool ok = _ctrl_593CM.Desbloquear_593CM(_dniSeleccionado_593CM);
-            if (ok)
+
+            if (!PedirNuevaContrasena_593CM(out string clave, out string confirm)) return;
+
+            var res = _ctrl_593CM.Desbloquear_593CM(_dniSeleccionado_593CM, clave, confirm);
+            switch (res)
             {
-                MostrarInfo_593CM("Usuario desbloqueado exitosamente.");
-                EstablecerModo_593CM(Modo_593CM.Consulta);
-                CargarGrilla_593CM();
+                case UsuarioController_593CM.ResultadoDesbloquear_593CM.Exitoso:
+                    MostrarInfo_593CM("Usuario desbloqueado y contraseña actualizada.");
+                    EstablecerModo_593CM(Modo_593CM.Consulta);
+                    CargarGrilla_593CM();
+                    break;
+                case UsuarioController_593CM.ResultadoDesbloquear_593CM.ConfirmacionNoCoincide:
+                    MostrarError_593CM("Las contraseñas no coinciden.");
+                    break;
+                case UsuarioController_593CM.ResultadoDesbloquear_593CM.NuevaClaveInvalida:
+                    MostrarError_593CM("La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número.");
+                    break;
+                case UsuarioController_593CM.ResultadoDesbloquear_593CM.ErrorDB:
+                    MostrarError_593CM("No se pudo desbloquear el usuario.");
+                    break;
             }
-            else
-                MostrarError_593CM("No se pudo desbloquear el usuario.");
+        }
+
+        private bool PedirNuevaContrasena_593CM(out string clave, out string confirm)
+        {
+            clave = null; confirm = null;
+
+            using (var dlg = new Form())
+            {
+                dlg.Text            = "Nueva contraseña para desbloqueo";
+                dlg.Size            = new System.Drawing.Size(340, 210);
+                dlg.FormBorderStyle = FormBorderStyle.FixedDialog;
+                dlg.StartPosition   = FormStartPosition.CenterParent;
+                dlg.MaximizeBox     = false;
+                dlg.MinimizeBox     = false;
+
+                var lblNueva = new Label   { Text = "Nueva contraseña:",    Left = 12, Top = 16,  Width = 200, Height = 18 };
+                var txtNueva = new TextBox { Left = 12, Top = 36,  Width = 300, PasswordChar = '*' };
+                var lblConf  = new Label   { Text = "Confirmar contraseña:", Left = 12, Top = 68,  Width = 200, Height = 18 };
+                var txtConf  = new TextBox { Left = 12, Top = 88,  Width = 300, PasswordChar = '*' };
+                var btnOk    = new Button  { Text = "Aceptar",  Left = 130, Top = 130, Width = 85,
+                                             DialogResult = DialogResult.OK };
+                var btnCan   = new Button  { Text = "Cancelar", Left = 225, Top = 130, Width = 85,
+                                             DialogResult = DialogResult.Cancel };
+
+                dlg.Controls.AddRange(new Control[] { lblNueva, txtNueva, lblConf, txtConf, btnOk, btnCan });
+                dlg.AcceptButton = btnOk;
+                dlg.CancelButton = btnCan;
+
+                if (dlg.ShowDialog(this) != DialogResult.OK) return false;
+
+                clave   = txtNueva.Text;
+                confirm = txtConf.Text;
+                return true;
+            }
         }
 
         // ── Cambio de filtro Activos/Todos ──────────────────────────────────────────────

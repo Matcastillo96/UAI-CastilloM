@@ -102,9 +102,10 @@ namespace DIEFER.UI
             this.mnuUsuario_593CM.Name = "mnuUsuario_593CM";
             this.mnuUsuario_593CM.Text = "USUARIO";
 
-            this.mnuReLogin_593CM.Name   = "mnuReLogin_593CM";
-            this.mnuReLogin_593CM.Text   = "Re-Login";
-            this.mnuReLogin_593CM.Click += new System.EventHandler(this.mnuReLogin_Click_593CM);
+            this.mnuReLogin_593CM.Name    = "mnuReLogin_593CM";
+            this.mnuReLogin_593CM.Text    = "Re-Login";
+            this.mnuReLogin_593CM.Visible = false;
+            this.mnuReLogin_593CM.Click  += new System.EventHandler(this.mnuReLogin_Click_593CM);
 
             this.mnuCambiarClave_593CM.Name   = "mnuCambiarClave_593CM";
             this.mnuCambiarClave_593CM.Text   = "Cambiar Clave";

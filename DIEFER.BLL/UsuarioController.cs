@@ -166,16 +166,29 @@ namespace DIEFER.BLL
 
         // ── Desbloquear ─────────────────────────────────────────────────────────────────
 
-        public bool Desbloquear_593CM(string dni)
+        public enum ResultadoDesbloquear_593CM
         {
+            Exitoso, ConfirmacionNoCoincide, NuevaClaveInvalida, ErrorDB
+        }
+
+        public ResultadoDesbloquear_593CM Desbloquear_593CM(string dni, string nuevaClave, string confirmacion)
+        {
+            if (!string.Equals(nuevaClave, confirmacion, StringComparison.Ordinal))
+                return ResultadoDesbloquear_593CM.ConfirmacionNoCoincide;
+
+            if (!CumpleReglasClave_593CM(nuevaClave))
+                return ResultadoDesbloquear_593CM.NuevaClaveInvalida;
+
+            string nuevoHash = CriptoService_593CM.HashSHA256_593CM(nuevaClave);
+            _usuarioDB_593CM.ActualizarPassword_593CM(dni, nuevoHash);
+
             bool ok = _usuarioDB_593CM.ActualizarBloqueo_593CM(dni, false);
-            if (ok)
-            {
-                ActualizarDV_593CM();
-                string loginActual = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM ?? "Sistema";
-                _eventoBLL_593CM.Registrar_593CM(loginActual, "Usuario", "Desbloquear Usuario", 1);
-            }
-            return ok;
+            if (!ok) return ResultadoDesbloquear_593CM.ErrorDB;
+
+            ActualizarDV_593CM();
+            string loginActual = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM ?? "Sistema";
+            _eventoBLL_593CM.Registrar_593CM(loginActual, "Usuario", "Desbloquear Usuario", 1);
+            return ResultadoDesbloquear_593CM.Exitoso;
         }
 
         // ── Activar / Desactivar ────────────────────────────────────────────────────────
