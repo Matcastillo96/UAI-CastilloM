@@ -21,5 +21,11 @@ namespace DIEFER.DAL
 
             return new SqlConnection(_connectionString_593CM);
         }
+
+        public static void VerificarConexion_593CM()
+        {
+            using (var conn = ObtenerConexion_593CM())
+                conn.Open();
+        }
     }
 }

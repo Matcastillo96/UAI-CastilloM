@@ -12,18 +12,49 @@ namespace DIEFER.UI
         [STAThread]
         static void Main()
         {
-            // Apuntar |DataDirectory| a la carpeta de la aplicación (donde se crea DIEFER.mdf)
             string appDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             AppDomain.CurrentDomain.SetData("DataDirectory", appDir);
 
-            // Inicializar cadena de conexión.
-            // La base de datos debe crearse previamente ejecutando DIEFER_Setup.sql.
-            ConexionDB_593CM.Inicializar_593CM(ConfigManager_593CM.ConnectionString_593CM);
-            // DatabaseInitializer_593CM.InicializarBD_593CM(); // reemplazado por DIEFER_Setup.sql
+            try
+            {
+                ConexionDB_593CM.Inicializar_593CM(ConfigManager_593CM.ConnectionString_593CM);
+                ConexionDB_593CM.VerificarConexion_593CM();
+            }
+            catch (System.Data.SqlClient.SqlException ex)
+            {
+                MessageBox.Show(
+                    $"No se pudo conectar a la base de datos.\n\n" +
+                    $"Servidor: {ObtenerServidor()}\n" +
+                    $"Error: {ex.Message}",
+                    "Error de conexión",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Error al iniciar la aplicación:\n\n{ex.Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormLogin_593CM());
+        }
+
+        private static string ObtenerServidor()
+        {
+            try
+            {
+                var cs = ConfigManager_593CM.ConnectionString_593CM;
+                var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(cs);
+                return builder.DataSource;
+            }
+            catch { return "desconocido"; }
         }
     }
 }
