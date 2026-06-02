@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DIEFER.BLL</AssemblyName>
+    <RootNamespace>DIEFER.BLL</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
+    <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />
+    <ProjectReference Include="..\DIEFER.DAL\DIEFER.DAL.csproj" />
+  </ItemGroup>
+</Project>
