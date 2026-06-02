@@ -3,11 +3,6 @@ namespace DIEFER.BE
     // Catálogos estáticos del dominio DIEFER.
     public static class Catalogos_593CM
     {
-        public static readonly string[] Roles_593CM =
-        {
-            "Administrador", "Vendedor", "Cajero", "Despachador", "Supervisor", "Gerencial"
-        };
-
         public static readonly string[] Modulos_593CM =
         {
             "Usuario", "Maestro", "Ventas", "Compras", "Perfiles", "Servicio"
