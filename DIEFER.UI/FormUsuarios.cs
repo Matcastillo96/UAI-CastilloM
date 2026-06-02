@@ -47,10 +47,13 @@ namespace DIEFER.UI
             {
                 int idx = dgvUsuarios_593CM.Rows.Add(
                     u.DNI_593CM, u.Apellidos_593CM, u.Nombre_593CM, u.Login_593CM, u.Rol_593CM);
-                if (!u.Activo_593CM)
+                if (u.Bloqueado_593CM)
+                    dgvUsuarios_593CM.Rows[idx].DefaultCellStyle.BackColor = Color.LightYellow;
+                else if (!u.Activo_593CM)
                     dgvUsuarios_593CM.Rows[idx].DefaultCellStyle.BackColor = Color.LightCoral;
             }
 
+            dgvUsuarios_593CM.ClearSelection();
             lblNumUsuarios_593CM.Text = $"Número de Usuarios: {_listaActual_593CM.Count}";
             _dniSeleccionado_593CM    = null;
             LimpiarDetalle_593CM();
@@ -113,7 +116,7 @@ namespace DIEFER.UI
             btnModificar_593CM.Enabled   = esConsulta;
             btnActDesact_593CM.Enabled   = esConsulta;
 
-            btnAplicar_593CM.Enabled  = true;
+            btnAplicar_593CM.Enabled  = !esConsulta;
             btnCancelar_593CM.Enabled = !esConsulta;
             btnSalir_593CM.Enabled    = esConsulta;
 

@@ -1,6 +1,6 @@
 using DIEFER.BE;
 
-namespace DIEFER.BLL
+namespace DIEFER.Servicios
 {
     // Singleton — única instancia durante toda la sesión activa.
     // Constructor privado; acceso exclusivo por GetInstancia_593CM().

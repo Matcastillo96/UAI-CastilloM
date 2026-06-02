@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using DIEFER.BE;
 using DIEFER.BLL;
 using DIEFER.DAL;
+using DIEFER.Servicios;
 
 namespace DIEFER.UI
 {
@@ -59,17 +60,12 @@ namespace DIEFER.UI
 
         // ── ADMIN → Usuarios ────────────────────────────────────────────────────────────
 
-        private void AbrirFormUsuariosEnModo_593CM(string modo)
+        private void mnuAdminUsuarios_Click_593CM(object sender, EventArgs e)
         {
-            var f = new FormUsuarios_593CM(modo);
+            var f = new FormUsuarios_593CM();
             f.MdiParent = this;
             f.Show();
         }
-
-        private void mnuCrearUsuario_Click_593CM(object sender, EventArgs e)    => AbrirFormUsuariosEnModo_593CM("Crear");
-        private void mnuModificarUsuario_Click_593CM(object sender, EventArgs e) => AbrirFormUsuariosEnModo_593CM("Modificar");
-        private void mnuActDesact_Click_593CM(object sender, EventArgs e)        => AbrirFormUsuariosEnModo_593CM("ActDesact");
-        private void mnuDesbloquear_Click_593CM(object sender, EventArgs e)      => AbrirFormUsuariosEnModo_593CM("Desbloquear");
 
         // ── ADMIN → Bitácora ────────────────────────────────────────────────────────────
 
@@ -84,6 +80,17 @@ namespace DIEFER.UI
 
         private void mnuReLogin_Click_593CM(object sender, EventArgs e)
         {
+            var sesion   = SessionManager_593CM.GetInstancia_593CM();
+            string login = sesion.UsuarioActual_593CM?.Login_593CM ?? "(desconocido)";
+
+            var respuesta = MessageBox.Show(
+                $"Sesión activa: {login}\n\n¿Desea re-loguearse para aplicar permisos actualizados?",
+                "Re-Login — Sesión activa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Information);
+
+            if (respuesta != DialogResult.Yes) return;
+
             var f = new FormLogin_593CM(esModoReLogin: true);
             f.ShowDialog(this);
             if (f.DialogResult == DialogResult.OK)

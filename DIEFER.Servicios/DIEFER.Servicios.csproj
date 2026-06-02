@@ -9,4 +9,7 @@
   <ItemGroup>
     <Reference Include="System.Configuration" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
+  </ItemGroup>
 </Project>

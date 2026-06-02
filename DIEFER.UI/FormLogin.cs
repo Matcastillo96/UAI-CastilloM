@@ -62,6 +62,11 @@ namespace DIEFER.UI
                     LimpiarCampos_593CM();
                     break;
 
+                case UsuarioController_593CM.ResultadoLogin_593CM.CuentaNoExistente:
+                    MostrarError_593CM("La cuenta ingresada no existe.");
+                    LimpiarCampos_593CM();
+                    break;
+
                 case UsuarioController_593CM.ResultadoLogin_593CM.CuentaInactivaBloqueada:
                     MostrarError_593CM("Cuenta inactiva o bloqueada. Contacte al Administrador.");
                     LimpiarCampos_593CM();

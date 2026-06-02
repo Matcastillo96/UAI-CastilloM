@@ -28,7 +28,7 @@ namespace DIEFER.BLL
         public enum ResultadoLogin_593CM
         {
             Exitoso, CredencialesInvalidas, CuentaInactivaBloqueada,
-            ErrorIntegridad, Bloqueado
+            ErrorIntegridad, Bloqueado, CuentaNoExistente
         }
 
         public ResultadoLogin_593CM Autenticar_593CM(string login, string password,
@@ -37,11 +37,12 @@ namespace DIEFER.BLL
             usuarioAutenticado = null;
             var usuario = _usuarioDB_593CM.BuscarPorLogin_593CM(login);
 
-            if (usuario == null || !usuario.Activo_593CM || usuario.Bloqueado_593CM)
+            if (usuario == null)
+                return ResultadoLogin_593CM.CuentaNoExistente;
+
+            if (!usuario.Activo_593CM || usuario.Bloqueado_593CM)
             {
-                // Mensaje genérico — evita enumeración de usuarios
-                if (usuario != null)
-                    _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Login fallido", 1);
+                _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Login fallido", 1);
                 return ResultadoLogin_593CM.CuentaInactivaBloqueada;
             }
 
