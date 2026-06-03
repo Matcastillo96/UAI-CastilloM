@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Text;
 using DIEFER.BE;
 
 namespace DIEFER.DAL
@@ -9,6 +10,11 @@ namespace DIEFER.DAL
     // Todas las consultas usan SqlParameter — sin concatenación de strings con datos de usuario.
     public class UsuarioDB_593CM : IUsuarioDB_593CM
     {
+        private const string SelectConJoin_593CM = @"
+SELECT U.DNI, U.Apellidos, U.Nombre, U.Login, U.Password,
+       U.ID_rol, R.Nombre AS RolNombre, U.Email, U.Bloqueado, U.Activo
+FROM USUARIO U INNER JOIN ROLES R ON U.ID_rol = R.ID_rol";
+
         public bool ExisteDNI_593CM(string dni)
         {
             const string sql = "SELECT COUNT(1) FROM USUARIO WHERE DNI = @DNI";
@@ -45,8 +51,8 @@ namespace DIEFER.DAL
         public bool Insertar_593CM(Usuario_593CM u)
         {
             const string sql = @"
-INSERT INTO USUARIO (DNI, Apellidos, Nombre, Login, Password, Rol, Email, Bloqueado, Activo)
-VALUES (@DNI, @Ape, @Nom, @Login, @Pass, @Rol, @Email, @Bloqueado, @Activo)";
+INSERT INTO USUARIO (DNI, Apellidos, Nombre, Login, Password, ID_rol, Email, Bloqueado, Activo)
+VALUES (@DNI, @Ape, @Nom, @Login, @Pass, @IDRol, @Email, @Bloqueado, @Activo)";
 
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
             {
@@ -61,7 +67,7 @@ VALUES (@DNI, @Ape, @Nom, @Login, @Pass, @Rol, @Email, @Bloqueado, @Activo)";
 
         public Usuario_593CM BuscarPorLogin_593CM(string login)
         {
-            const string sql = "SELECT * FROM USUARIO WHERE Login = @Login";
+            string sql = SelectConJoin_593CM + " WHERE U.Login = @Login";
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
             {
                 conn.Open();
@@ -76,7 +82,7 @@ VALUES (@DNI, @Ape, @Nom, @Login, @Pass, @Rol, @Email, @Bloqueado, @Activo)";
 
         public Usuario_593CM BuscarPorDNI_593CM(string dni)
         {
-            const string sql = "SELECT * FROM USUARIO WHERE DNI = @DNI";
+            string sql = SelectConJoin_593CM + " WHERE U.DNI = @DNI";
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
             {
                 conn.Open();
@@ -93,7 +99,7 @@ VALUES (@DNI, @Ape, @Nom, @Login, @Pass, @Rol, @Email, @Bloqueado, @Activo)";
         {
             const string sql = @"
 UPDATE USUARIO
-SET Apellidos=@Ape, Nombre=@Nom, Login=@Login, Rol=@Rol, Email=@Email
+SET Apellidos=@Ape, Nombre=@Nom, Login=@Login, ID_rol=@IDRol, Email=@Email
 WHERE DNI=@DNI";
 
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
@@ -105,7 +111,7 @@ WHERE DNI=@DNI";
                     cmd.Parameters.AddWithValue("@Ape",   u.Apellidos_593CM);
                     cmd.Parameters.AddWithValue("@Nom",   u.Nombre_593CM);
                     cmd.Parameters.AddWithValue("@Login", u.Login_593CM);
-                    cmd.Parameters.AddWithValue("@Rol",   u.Rol_593CM);
+                    cmd.Parameters.AddWithValue("@IDRol", u.ID_rol_593CM);
                     cmd.Parameters.AddWithValue("@Email", u.Email_593CM);
                     return cmd.ExecuteNonQuery() > 0;
                 }
@@ -159,8 +165,17 @@ WHERE DNI=@DNI";
 
         public List<Usuario_593CM> GetBloqueados_593CM()
         {
-            const string sql = "SELECT * FROM USUARIO WHERE Bloqueado=1 AND Activo=1 ORDER BY Apellidos";
-            return EjecutarLista_593CM(sql);
+            string sql = SelectConJoin_593CM + " WHERE U.Bloqueado=1 AND U.Activo=1 ORDER BY U.Apellidos";
+            var lista = new List<Usuario_593CM>();
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn))
+                using (var reader = cmd.ExecuteReader())
+                    while (reader.Read())
+                        lista.Add(MapearUsuario_593CM(reader));
+            }
+            return lista;
         }
 
         public List<Usuario_593CM> Listar_593CM(bool soloActivos, string filtroDNI = null,
@@ -168,17 +183,17 @@ WHERE DNI=@DNI";
                                     string filtroEmail = null, string filtroRol = null,
                                     string filtroLogin = null)
         {
-            var where = new System.Text.StringBuilder("WHERE 1=1");
-            if (soloActivos)        where.Append(" AND Activo=1");
-            if (!string.IsNullOrEmpty(filtroDNI))       where.Append(" AND DNI       LIKE @FDNI");
-            if (!string.IsNullOrEmpty(filtroApellidos)) where.Append(" AND Apellidos LIKE @FApe");
-            if (!string.IsNullOrEmpty(filtroNombre))    where.Append(" AND Nombre    LIKE @FNom");
-            if (!string.IsNullOrEmpty(filtroEmail))     where.Append(" AND Email     LIKE @FEmail");
-            if (!string.IsNullOrEmpty(filtroRol))       where.Append(" AND Rol       LIKE @FRol");
-            if (!string.IsNullOrEmpty(filtroLogin))     where.Append(" AND Login     LIKE @FLogin");
+            var where = new StringBuilder("WHERE 1=1");
+            if (soloActivos)                              where.Append(" AND U.Activo=1");
+            if (!string.IsNullOrEmpty(filtroDNI))        where.Append(" AND U.DNI       LIKE @FDNI");
+            if (!string.IsNullOrEmpty(filtroApellidos))  where.Append(" AND U.Apellidos LIKE @FApe");
+            if (!string.IsNullOrEmpty(filtroNombre))     where.Append(" AND U.Nombre    LIKE @FNom");
+            if (!string.IsNullOrEmpty(filtroEmail))      where.Append(" AND U.Email     LIKE @FEmail");
+            if (!string.IsNullOrEmpty(filtroRol))        where.Append(" AND R.Nombre    LIKE @FRol");
+            if (!string.IsNullOrEmpty(filtroLogin))      where.Append(" AND U.Login     LIKE @FLogin");
 
-            string sql = $"SELECT * FROM USUARIO {where} ORDER BY Apellidos, Nombre";
-            var lista  = new List<Usuario_593CM>();
+            string sql  = $"{SelectConJoin_593CM} {where} ORDER BY U.Apellidos, U.Nombre";
+            var lista   = new List<Usuario_593CM>();
 
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
             {
@@ -241,24 +256,10 @@ WHERE DNI=@DNI";
             cmd.Parameters.AddWithValue("@Nom",      u.Nombre_593CM);
             cmd.Parameters.AddWithValue("@Login",    u.Login_593CM);
             cmd.Parameters.AddWithValue("@Pass",     u.Password_593CM);
-            cmd.Parameters.AddWithValue("@Rol",      u.Rol_593CM);
+            cmd.Parameters.AddWithValue("@IDRol",    u.ID_rol_593CM);
             cmd.Parameters.AddWithValue("@Email",    u.Email_593CM);
             cmd.Parameters.AddWithValue("@Bloqueado",u.Bloqueado_593CM);
             cmd.Parameters.AddWithValue("@Activo",   u.Activo_593CM);
-        }
-
-        private static List<Usuario_593CM> EjecutarLista_593CM(string sql)
-        {
-            var lista = new List<Usuario_593CM>();
-            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
-            {
-                conn.Open();
-                using (var cmd = new SqlCommand(sql, conn))
-                using (var reader = cmd.ExecuteReader())
-                    while (reader.Read())
-                        lista.Add(MapearUsuario_593CM(reader));
-            }
-            return lista;
         }
 
         private static Usuario_593CM MapearUsuario_593CM(SqlDataReader r)
@@ -270,7 +271,8 @@ WHERE DNI=@DNI";
                 Nombre_593CM    = r["Nombre"].ToString(),
                 Login_593CM     = r["Login"].ToString(),
                 Password_593CM  = r["Password"].ToString(),
-                Rol_593CM       = r["Rol"].ToString(),
+                ID_rol_593CM    = Convert.ToInt32(r["ID_rol"]),
+                Rol_593CM       = r["RolNombre"].ToString(),
                 Email_593CM     = r["Email"].ToString(),
                 Bloqueado_593CM = Convert.ToBoolean(r["Bloqueado"]),
                 Activo_593CM    = Convert.ToBoolean(r["Activo"]),

@@ -13,6 +13,7 @@ namespace DIEFER.UI
         private enum Modo_593CM { Consulta, Anadir, Modificar, Eliminar, Desbloquear }
 
         private readonly UsuarioController_593CM _ctrl_593CM;
+        private readonly RolBLL_593CM            _rolBLL_593CM;
         private Modo_593CM   _modoActual_593CM   = Modo_593CM.Consulta;
         private string       _dniSeleccionado_593CM;
         private List<Usuario_593CM> _listaActual_593CM = new List<Usuario_593CM>();
@@ -24,8 +25,10 @@ namespace DIEFER.UI
             var eventoDB   = new EventoDAL_593CM();
             var eventoBLL  = new EventoBLL_593CM(eventoDB, usuarioDB);
             _ctrl_593CM    = new UsuarioController_593CM(usuarioDB, eventoBLL);
+            _rolBLL_593CM  = new RolBLL_593CM(new RolDB_593CM());
 
-            cboRol_593CM.Items.AddRange(Catalogos_593CM.Roles_593CM);
+            foreach (var rol in _rolBLL_593CM.ListarTodos_593CM())
+                cboRol_593CM.Items.Add(rol.Nombre_593CM);
 
             CargarGrilla_593CM();
             EstablecerModo_593CM(Modo_593CM.Consulta);

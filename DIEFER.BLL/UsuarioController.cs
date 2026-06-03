@@ -12,6 +12,7 @@ namespace DIEFER.BLL
     {
         private readonly IUsuarioDB_593CM _usuarioDB_593CM;
         private readonly EventoBLL_593CM  _eventoBLL_593CM;
+        private readonly RolBLL_593CM     _rolBLL_593CM;
 
         // Contador transitorio de intentos fallidos por login — no se persiste en USUARIO
         private static readonly Dictionary<string, int> _intentosFallidos_593CM =
@@ -21,6 +22,7 @@ namespace DIEFER.BLL
         {
             _usuarioDB_593CM = usuarioDB;
             _eventoBLL_593CM = eventoBLL;
+            _rolBLL_593CM    = new RolBLL_593CM(new RolDB_593CM());
         }
 
         // ── Autenticación ───────────────────────────────────────────────────────────────
@@ -112,6 +114,7 @@ namespace DIEFER.BLL
                 Nombre_593CM    = nombre.Trim(),
                 Login_593CM     = login,
                 Password_593CM  = passHash,
+                ID_rol_593CM    = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
                 Rol_593CM       = rol,
                 Email_593CM     = email.Trim(),
                 Bloqueado_593CM = false,
@@ -153,6 +156,7 @@ namespace DIEFER.BLL
                 Apellidos_593CM = apellidos.Trim(),
                 Nombre_593CM    = nombre.Trim(),
                 Login_593CM     = nuevoLogin,
+                ID_rol_593CM    = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
                 Rol_593CM       = rol,
                 Email_593CM     = email.Trim(),
             };

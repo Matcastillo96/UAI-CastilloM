@@ -8,7 +8,8 @@ namespace DIEFER.BE
         public string Nombre_593CM    { get; set; }
         public string Login_593CM     { get; set; }
         public string Password_593CM  { get; set; }   // SHA-256 hash
-        public string Rol_593CM       { get; set; }
+        public int    ID_rol_593CM    { get; set; }   // FK → ROLES.ID_rol
+        public string Rol_593CM       { get; set; }   // nombre del rol (cargado por JOIN)
         public string Email_593CM     { get; set; }
         public bool   Bloqueado_593CM { get; set; }   // false = no bloqueado (default)
         public bool   Activo_593CM    { get; set; }   // true  = activo (default)
