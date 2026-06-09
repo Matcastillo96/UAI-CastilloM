@@ -13,6 +13,7 @@ namespace DIEFER.Servicios
         private static readonly object _lock = new object();
 
         private readonly List<IIdiomaObserver_593CM> _observers = new List<IIdiomaObserver_593CM>();
+        private readonly object _observersLock = new object();
         private string _codigoActual = "es";
 
         // codigo → { nombre, textos{clave→valor} }
@@ -56,7 +57,10 @@ namespace DIEFER.Servicios
 
                     _idiomas[codigo] = new IdiomaInfo_593CM { Nombre = nombre, Textos = textos };
                 }
-                catch { /* ignorar JSON malformado */ }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[IdiomaService] Error cargando {archivo}: {ex.Message}");
+                }
             }
         }
 
@@ -84,13 +88,15 @@ namespace DIEFER.Servicios
 
         public void Suscribir_593CM(IIdiomaObserver_593CM observer)
         {
-            if (!_observers.Contains(observer))
-                _observers.Add(observer);
+            lock (_observersLock)
+                if (!_observers.Contains(observer))
+                    _observers.Add(observer);
         }
 
         public void Desuscribir_593CM(IIdiomaObserver_593CM observer)
         {
-            _observers.Remove(observer);
+            lock (_observersLock)
+                _observers.Remove(observer);
         }
 
         // Cambia el idioma activo y notifica a todos los observers.
@@ -105,7 +111,10 @@ namespace DIEFER.Servicios
         {
             if (!_idiomas.TryGetValue(_codigoActual, out var info)) return;
             var textos = info.Textos;
-            foreach (var obs in _observers.ToArray())
+            IIdiomaObserver_593CM[] snapshot;
+            lock (_observersLock)
+                snapshot = _observers.ToArray();
+            foreach (var obs in snapshot)
                 obs.OnIdiomaChanged_593CM(_codigoActual, textos);
         }
     }

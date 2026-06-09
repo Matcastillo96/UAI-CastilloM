@@ -15,6 +15,7 @@ namespace DIEFER.BLL
 
         private static readonly Dictionary<string, int> _intentosFallidos_593CM =
             new Dictionary<string, int>();
+        private static readonly object _loginLock = new object();
 
         public UsuarioBLL_593CM() : this(new UsuarioDAL_593CM(), new EventoBLL_593CM()) { }
 
@@ -53,11 +54,16 @@ namespace DIEFER.BLL
             {
                 _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Login fallido", 1);
 
-                if (!_intentosFallidos_593CM.ContainsKey(login))
-                    _intentosFallidos_593CM[login] = 0;
-                _intentosFallidos_593CM[login]++;
+                bool bloquear = false;
+                lock (_loginLock)
+                {
+                    if (!_intentosFallidos_593CM.ContainsKey(login))
+                        _intentosFallidos_593CM[login] = 0;
+                    _intentosFallidos_593CM[login]++;
+                    bloquear = _intentosFallidos_593CM[login] >= 3;
+                }
 
-                if (_intentosFallidos_593CM[login] >= 3)
+                if (bloquear)
                 {
                     _usuarioDAL_593CM.ActualizarBloqueo_593CM(usuario.DNI_593CM, true);
                     _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Bloquear Usuario", 1);
@@ -71,7 +77,8 @@ namespace DIEFER.BLL
             if (!DVService_593CM.VerificarIntegridad_593CM(logins))
                 return ResultadoLogin_593CM.ErrorIntegridad;
 
-            _intentosFallidos_593CM.Remove(login);
+            lock (_loginLock)
+                _intentosFallidos_593CM.Remove(login);
             SessionManager_593CM.GetInstancia_593CM().Iniciar_593CM(usuario);
 
             // Restaurar idioma preferido del usuario
@@ -290,7 +297,8 @@ namespace DIEFER.BLL
 
         private static bool EsEmailValido_593CM(string email)
         {
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            try { var _ = new System.Net.Mail.MailAddress(email); return true; }
+            catch { return false; }
         }
 
         private static bool CumpleReglasClave_593CM(string clave)

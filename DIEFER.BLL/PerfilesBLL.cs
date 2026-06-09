@@ -202,18 +202,28 @@ namespace DIEFER.BLL
             return resultado;
         }
 
-        // BFS para verificar si agregar idHija a idPadre crearía un ciclo.
+        // Verifica si agregar idHija bajo idPadre crearía un ciclo (ambas direcciones).
         private bool CreariaCirculo_593CM(int idPadre, int idHija)
+        {
+            // Caso 1: idHija ya es ancestro de idPadre (idPadre hereda de idHija)
+            if (DesciendeDe_593CM(idPadre, idHija)) return true;
+            // Caso 2: idPadre ya es descendiente de idHija (idHija hereda de idPadre)
+            if (DesciendeDe_593CM(idHija, idPadre)) return true;
+            return false;
+        }
+
+        // BFS: retorna true si idFamilia desciende (directa o transitivamente) de idAncestro.
+        private bool DesciendeDe_593CM(int idFamilia, int idAncestro)
         {
             var visitados = new HashSet<int>();
             var cola      = new Queue<int>();
-            cola.Enqueue(idHija);
+            cola.Enqueue(idFamilia);
 
             while (cola.Count > 0)
             {
                 int actual = cola.Dequeue();
                 if (!visitados.Add(actual)) continue;
-                if (actual == idPadre) return true;
+                if (actual == idAncestro) return true;
 
                 foreach (var hijo in _familiaDAL_593CM.ObtenerIdsFamiliasHijas_593CM(actual))
                     if (!visitados.Contains(hijo))
