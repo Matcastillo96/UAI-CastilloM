@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using DIEFER.DAL;
+using DIEFER.Servicios;
 
 namespace DIEFER.UI
 {
@@ -13,6 +14,9 @@ namespace DIEFER.UI
         {
             string appDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             AppDomain.CurrentDomain.SetData("DataDirectory", appDir);
+
+            IdiomaService_593CM.GetInstancia_593CM()
+                .CargarIdiomas_593CM(Path.Combine(appDir, "idiomas"));
 
             try
             {

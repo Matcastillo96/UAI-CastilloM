@@ -11,7 +11,7 @@ namespace DIEFER.DAL
     {
         private const string SelectConJoin_593CM = @"
 SELECT U.DNI, U.Apellidos, U.Nombre, U.Login, U.Password,
-       U.ID_rol, R.Nombre AS RolNombre, U.Email, U.Bloqueado, U.Activo
+       U.ID_rol, R.Nombre AS RolNombre, U.Email, U.Bloqueado, U.Activo, U.Idioma
 FROM USUARIO U INNER JOIN ROLES R ON U.ID_rol = R.ID_rol";
 
         public bool ExisteDNI_593CM(string dni)
@@ -229,6 +229,21 @@ WHERE DNI=@DNI";
             return lista;
         }
 
+        public bool ActualizarIdioma_593CM(string dni, string codigo)
+        {
+            const string sql = "UPDATE USUARIO SET Idioma=@I WHERE DNI=@DNI";
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@I",   codigo);
+                    cmd.Parameters.AddWithValue("@DNI", dni);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         public (string Nombre, string Apellido) BuscarNombreApellidoPorLogin_593CM(string login)
         {
             const string sql = "SELECT Nombre, Apellidos FROM USUARIO WHERE Login = @Login";
@@ -275,6 +290,7 @@ WHERE DNI=@DNI";
                 Email_593CM     = r["Email"].ToString(),
                 Bloqueado_593CM = Convert.ToBoolean(r["Bloqueado"]),
                 Activo_593CM    = Convert.ToBoolean(r["Activo"]),
+                Idioma_593CM    = r["Idioma"] == DBNull.Value ? "es" : r["Idioma"].ToString(),
             };
         }
     }

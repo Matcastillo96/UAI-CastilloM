@@ -21,5 +21,6 @@ namespace DIEFER.Servicios
                              string filtroLogin = null);
         List<string> GetLoginsParaDV_593CM();
         (string Nombre, string Apellido) BuscarNombreApellidoPorLogin_593CM(string login);
+        bool ActualizarIdioma_593CM(string dni, string codigo);
     }
 }

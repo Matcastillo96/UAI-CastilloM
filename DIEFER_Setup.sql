@@ -51,8 +51,14 @@ BEGIN
         ID_rol    INT           NOT NULL REFERENCES ROLES(ID_rol),
         Email     NVARCHAR(120) NOT NULL,
         Bloqueado BIT           NOT NULL DEFAULT 0,
-        Activo    BIT           NOT NULL DEFAULT 1
+        Activo    BIT           NOT NULL DEFAULT 1,
+        Idioma    NVARCHAR(10)  NOT NULL DEFAULT 'es'
     );
+
+    -- Migración para bases existentes: agregar columna Idioma si no existe
+    IF NOT EXISTS (SELECT 1 FROM sys.columns
+                   WHERE object_id = OBJECT_ID('USUARIO') AND name = 'Idioma')
+        ALTER TABLE USUARIO ADD Idioma NVARCHAR(10) NOT NULL DEFAULT 'es';
 END
 GO
 

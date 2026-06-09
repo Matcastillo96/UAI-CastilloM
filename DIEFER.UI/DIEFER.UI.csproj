@@ -14,6 +14,11 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="idiomas\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
     <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />
     <ProjectReference Include="..\DIEFER.BLL\DIEFER.BLL.csproj" />

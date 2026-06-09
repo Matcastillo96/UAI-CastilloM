@@ -1,0 +1,25 @@
+{
+  "codigo": "en",
+  "nombre": "English",
+  "textos": {
+    "menu_admin": "ADMIN",
+    "menu_admin_usuarios": "Users",
+    "menu_admin_bitacora": "Event Log",
+    "menu_maestros": "MASTERS",
+    "menu_usuario": "USER",
+    "menu_relogin": "Re-Login",
+    "menu_cambiar_clave": "Change Password",
+    "menu_cambiar_idioma": "Change Language",
+    "menu_logout": "Logout",
+    "menu_ventas": "SALES",
+    "menu_compras": "PURCHASES",
+    "menu_reportes": "REPORTS",
+    "menu_ayuda": "HELP",
+    "sl_usuario": "User:",
+    "sl_rol": "Role:",
+    "form_cambiar_idioma_titulo": "Change Language",
+    "form_cambiar_idioma_label": "Select a language:",
+    "btn_aceptar": "Accept",
+    "btn_cancelar": "Cancel"
+  }
+}

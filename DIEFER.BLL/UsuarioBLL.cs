@@ -73,6 +73,11 @@ namespace DIEFER.BLL
 
             _intentosFallidos_593CM.Remove(login);
             SessionManager_593CM.GetInstancia_593CM().Iniciar_593CM(usuario);
+
+            // Restaurar idioma preferido del usuario
+            IdiomaService_593CM.GetInstancia_593CM().CambiarIdioma_593CM(
+                usuario.Idioma_593CM ?? "es");
+
             _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Login", 1);
             usuarioAutenticado = usuario;
             return ResultadoLogin_593CM.Exitoso;
@@ -240,6 +245,23 @@ namespace DIEFER.BLL
 
             _eventoBLL_593CM.Registrar_593CM(usuario.Login_593CM, "Usuario", "Cambiar Clave", 2);
             return ResultadoCambiarClave_593CM.Exitoso;
+        }
+
+        // ── Cambiar Idioma ──────────────────────────────────────────────────────────────
+
+        public bool CambiarIdioma_593CM(string codigo)
+        {
+            var usuario = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM;
+            if (usuario == null) return false;
+
+            bool ok = _usuarioDAL_593CM.ActualizarIdioma_593CM(usuario.DNI_593CM, codigo);
+            if (ok)
+            {
+                usuario.Idioma_593CM = codigo;
+                IdiomaService_593CM.GetInstancia_593CM().CambiarIdioma_593CM(codigo);
+                _eventoBLL_593CM.Registrar_593CM(usuario.Login_593CM, "Usuario", "Cambiar Idioma", 1);
+            }
+            return ok;
         }
 
         // ── Logout ──────────────────────────────────────────────────────────────────────

@@ -13,5 +13,6 @@ namespace DIEFER.BE
         public string Email_593CM     { get; set; }
         public bool   Bloqueado_593CM { get; set; }   // false = no bloqueado (default)
         public bool   Activo_593CM    { get; set; }   // true  = activo (default)
+        public string Idioma_593CM    { get; set; }   // código de idioma (ej: "es", "en")
     }
 }

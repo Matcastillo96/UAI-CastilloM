@@ -1,0 +1,25 @@
+{
+  "codigo": "es",
+  "nombre": "Español",
+  "textos": {
+    "menu_admin": "ADMIN",
+    "menu_admin_usuarios": "Usuarios",
+    "menu_admin_bitacora": "Bitácora de Eventos",
+    "menu_maestros": "MAESTROS",
+    "menu_usuario": "USUARIO",
+    "menu_relogin": "Re-Login",
+    "menu_cambiar_clave": "Cambiar Clave",
+    "menu_cambiar_idioma": "Cambiar Idioma",
+    "menu_logout": "Logout",
+    "menu_ventas": "VENTAS",
+    "menu_compras": "COMPRAS",
+    "menu_reportes": "REPORTES",
+    "menu_ayuda": "AYUDA",
+    "sl_usuario": "Usuario:",
+    "sl_rol": "Rol:",
+    "form_cambiar_idioma_titulo": "Cambiar Idioma",
+    "form_cambiar_idioma_label": "Seleccione un idioma:",
+    "btn_aceptar": "Aceptar",
+    "btn_cancelar": "Cancelar"
+  }
+}
