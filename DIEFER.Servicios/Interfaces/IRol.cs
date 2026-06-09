@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DIEFER.BE;
 
 namespace DIEFER.Servicios
 {
@@ -7,5 +6,6 @@ namespace DIEFER.Servicios
     {
         List<Rol_593CM> ListarTodos_593CM();
         int ObtenerIDPorNombre_593CM(string nombre);
+        bool Crear_593CM(string nombre);
     }
 }

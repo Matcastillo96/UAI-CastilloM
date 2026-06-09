@@ -1,5 +1,3 @@
-using DIEFER.BE;
-
 namespace DIEFER.Servicios
 {
     // Singleton — única instancia durante toda la sesión activa.

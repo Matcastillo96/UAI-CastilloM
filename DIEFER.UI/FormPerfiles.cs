@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using DIEFER.BE;
 using DIEFER.BLL;
+using DIEFER.Servicios;
 
 namespace DIEFER.UI
 {
@@ -212,6 +212,25 @@ namespace DIEFER.UI
                 _bll.QuitarFamiliaDeRol_593CM(idRol, f.ID_familia_593CM);
 
             RefrescarListasRoles();
+        }
+
+        private void btnNuevoRol_Click(object sender, EventArgs e)
+        {
+            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nombre del nuevo rol:", "Nuevo Rol", string.Empty);
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+
+            if (!_rolBLL.CrearRol_593CM(nombre.Trim()))
+            {
+                MessageBox.Show("No se pudo crear el rol.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            CargarComboRoles();
+            // Seleccionar el recién creado
+            var nuevo = ((List<Rol_593CM>)cmbRoles.DataSource)
+                        .FirstOrDefault(r => r.Nombre_593CM == nombre.Trim());
+            if (nuevo != null) cmbRoles.SelectedValue = nuevo.ID_593CM;
         }
     }
 }

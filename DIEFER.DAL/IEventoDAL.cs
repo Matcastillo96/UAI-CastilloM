@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using DIEFER.BE;
+using DIEFER.Servicios;
 
 namespace DIEFER.DAL
 {

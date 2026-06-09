@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using DIEFER.BE;
 using DIEFER.DAL;
 using DIEFER.Servicios;
 
@@ -20,5 +19,8 @@ namespace DIEFER.BLL
 
         public int ObtenerIDPorNombre_593CM(string nombre) =>
             _rolDAL_593CM.ObtenerIDPorNombre_593CM(nombre);
+
+        public bool CrearRol_593CM(string nombre) =>
+            _rolDAL_593CM.Crear_593CM(nombre);
     }
 }

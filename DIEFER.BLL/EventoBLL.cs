@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
-using DIEFER.BE;
 using DIEFER.DAL;
 using DIEFER.Servicios;
 // PrintDocument es de System.Drawing — no de System.Windows.Forms. El PrintDialog lo maneja el UI.

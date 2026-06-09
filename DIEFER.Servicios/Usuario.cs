@@ -1,6 +1,5 @@
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
-    // Entidad de negocio que representa un usuario del sistema DIEFER.
     public class Usuario_593CM
     {
         public string DNI_593CM       { get; set; }

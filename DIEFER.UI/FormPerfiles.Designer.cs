@@ -26,6 +26,7 @@ namespace DIEFER.UI
             this.tabRoles = new System.Windows.Forms.TabPage();
             this.lblRol = new System.Windows.Forms.Label();
             this.cmbRoles = new System.Windows.Forms.ComboBox();
+            this.btnNuevoRol = new System.Windows.Forms.Button();
             this.lblAsignadosR = new System.Windows.Forms.Label();
             this.lstAsignadosR = new System.Windows.Forms.ListBox();
             this.btnQuitarR = new System.Windows.Forms.Button();
@@ -150,6 +151,7 @@ namespace DIEFER.UI
             // 
             this.tabRoles.Controls.Add(this.lblRol);
             this.tabRoles.Controls.Add(this.cmbRoles);
+            this.tabRoles.Controls.Add(this.btnNuevoRol);
             this.tabRoles.Controls.Add(this.lblAsignadosR);
             this.tabRoles.Controls.Add(this.lstAsignadosR);
             this.tabRoles.Controls.Add(this.btnQuitarR);
@@ -181,9 +183,18 @@ namespace DIEFER.UI
             this.cmbRoles.Size = new System.Drawing.Size(280, 21);
             this.cmbRoles.TabIndex = 0;
             this.cmbRoles.SelectedIndexChanged += new System.EventHandler(this.cmbRoles_SelectedIndexChanged);
-            // 
+            //
+            // btnNuevoRol
+            //
+            this.btnNuevoRol.Location = new System.Drawing.Point(360, 7);
+            this.btnNuevoRol.Name = "btnNuevoRol";
+            this.btnNuevoRol.Size = new System.Drawing.Size(110, 25);
+            this.btnNuevoRol.TabIndex = 6;
+            this.btnNuevoRol.Text = "Nuevo Rol";
+            this.btnNuevoRol.Click += new System.EventHandler(this.btnNuevoRol_Click);
+            //
             // lblAsignadosR
-            // 
+            //
             this.lblAsignadosR.AutoSize = true;
             this.lblAsignadosR.Location = new System.Drawing.Point(8, 42);
             this.lblAsignadosR.Name = "lblAsignadosR";
@@ -270,6 +281,7 @@ namespace DIEFER.UI
         private System.Windows.Forms.Button      btnQuitarF;
         private System.Windows.Forms.Label       lblRol;
         private System.Windows.Forms.ComboBox    cmbRoles;
+        private System.Windows.Forms.Button      btnNuevoRol;
         private System.Windows.Forms.ListBox     lstAsignadosR;
         private System.Windows.Forms.ListBox     lstDisponiblesR;
         private System.Windows.Forms.Label       lblAsignadosR;

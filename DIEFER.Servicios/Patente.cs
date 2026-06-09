@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
     // Leaf del patrón Composite: permiso atómico.
     public class Patente_593CM : IPermiso_593CM

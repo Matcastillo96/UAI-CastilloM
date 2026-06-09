@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using DIEFER.BE;
 using DIEFER.BLL;
 using DIEFER.Servicios;
 
@@ -10,12 +9,14 @@ namespace DIEFER.UI
     // Formulario MDI principal — contenedor de todos los módulos de DIEFER.
     public partial class FormPrincipal_593CM : Form, IIdiomaObserver_593CM
     {
-        private readonly UsuarioBLL_593CM _usuarioCtrl_593CM;
+        private readonly UsuarioBLL_593CM  _usuarioCtrl_593CM;
+        private readonly PerfilesBLL_593CM _perfilesBLL_593CM;
 
         public FormPrincipal_593CM()
         {
             InitializeComponent();
             _usuarioCtrl_593CM = new UsuarioBLL_593CM();
+            _perfilesBLL_593CM = new PerfilesBLL_593CM();
         }
 
         protected override void OnLoad(EventArgs e)
@@ -81,13 +82,15 @@ namespace DIEFER.UI
             var u = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM;
             if (u == null) return;
 
-            bool esAdmin = u.Rol_593CM == "Administrador";
-            bool puedeAuditoria = Array.IndexOf(Catalogos_593CM.RolesConAuditoria_593CM, u.Rol_593CM) >= 0;
+            // Consume los permisos definidos en la DB para el rol del usuario.
+            var permisos = _perfilesBLL_593CM.GetPermisosEfectivosDeRol_593CM(u.ID_rol_593CM);
 
-            mnuAdminUsuarios_593CM.Enabled = esAdmin;
-            mnuAdminBitacora_593CM.Enabled = puedeAuditoria;
-            mnuAdminPerfiles_593CM.Enabled = esAdmin;
-            mnuAdmin_593CM.Visible         = esAdmin || puedeAuditoria;
+            mnuAdminUsuarios_593CM.Enabled = permisos.Contains("admin.usuarios");
+            mnuAdminBitacora_593CM.Enabled = permisos.Contains("admin.bitacora");
+            mnuAdminPerfiles_593CM.Enabled = permisos.Contains("admin.perfiles");
+            mnuAdmin_593CM.Visible = mnuAdminUsuarios_593CM.Enabled
+                                  || mnuAdminBitacora_593CM.Enabled
+                                  || mnuAdminPerfiles_593CM.Enabled;
         }
 
         // ── ADMIN → Usuarios ────────────────────────────────────────────────────────────

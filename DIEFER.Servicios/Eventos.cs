@@ -1,8 +1,7 @@
 using System;
 
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
-    // Entidad de negocio que representa un evento registrado en la bitácora.
     public class Eventos_593CM
     {
         public int      Id_Evento_593CM  { get; set; }
