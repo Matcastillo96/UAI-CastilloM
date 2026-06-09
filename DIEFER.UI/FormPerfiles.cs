@@ -44,22 +44,36 @@ namespace DIEFER.UI
 
         private void CargarComboFamilias()
         {
-            cmbFamilias.DataSource    = null;
-            cmbFamilias.DataSource    = _bll.ListarFamilias_593CM();
+            cmbFamilias.SelectedIndexChanged -= cmbFamilias_SelectedIndexChanged;
+
+            cmbFamilias.DataSource = null;
             cmbFamilias.DisplayMember = "Nombre_593CM";
-            cmbFamilias.ValueMember   = "ID_familia_593CM";
+            cmbFamilias.ValueMember = "ID_familia_593CM";
+            cmbFamilias.DataSource = _bll.ListarFamilias_593CM();
+
+            cmbFamilias.SelectedIndexChanged += cmbFamilias_SelectedIndexChanged;
+
             if (cmbFamilias.Items.Count > 0)
-                RefrescarListasFamilias();
+                cmbFamilias.SelectedIndex = 0;
+
+            RefrescarListasFamilias();
         }
 
         private void CargarComboRoles()
         {
-            cmbRoles.DataSource    = null;
-            cmbRoles.DataSource    = _rolBLL.ListarTodos_593CM();
+            cmbRoles.SelectedIndexChanged -= cmbRoles_SelectedIndexChanged;
+
+            cmbRoles.DataSource = null;
             cmbRoles.DisplayMember = "Nombre_593CM";
-            cmbRoles.ValueMember   = "ID_593CM";
+            cmbRoles.ValueMember = "ID_593CM";
+            cmbRoles.DataSource = _rolBLL.ListarTodos_593CM();
+
+            cmbRoles.SelectedIndexChanged += cmbRoles_SelectedIndexChanged;
+
             if (cmbRoles.Items.Count > 0)
-                RefrescarListasRoles();
+                cmbRoles.SelectedIndex = 0;
+
+            RefrescarListasRoles();
         }
 
         // ── Familia tab ───────────────────────────────────────────────────────────────
@@ -72,9 +86,13 @@ namespace DIEFER.UI
         private void RefrescarListasFamilias()
         {
             if (cmbFamilias.SelectedValue == null) return;
-            int idFamilia = (int)cmbFamilias.SelectedValue;
+
+            if (cmbFamilias.SelectedValue is Familia_593CM) return;
+
+            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
 
             var familia = _bll.CargarFamiliaConComponentes_593CM(idFamilia);
+
             lstAsignadosF.Items.Clear();
             if (familia != null)
                 foreach (var comp in familia.Componentes_593CM)
@@ -88,7 +106,7 @@ namespace DIEFER.UI
         private void btnAgregarF_Click(object sender, EventArgs e)
         {
             if (cmbFamilias.SelectedValue == null || lstDisponiblesF.SelectedItem == null) return;
-            int idFamilia = (int)cmbFamilias.SelectedValue;
+            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
             var item = ((PermisoItem)lstDisponiblesF.SelectedItem).Permiso;
 
             bool ok;
@@ -108,7 +126,7 @@ namespace DIEFER.UI
         private void btnQuitarF_Click(object sender, EventArgs e)
         {
             if (cmbFamilias.SelectedValue == null || lstAsignadosF.SelectedItem == null) return;
-            int idFamilia = (int)cmbFamilias.SelectedValue;
+            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
             var item = ((PermisoItem)lstAsignadosF.SelectedItem).Permiso;
 
             if (item is Patente_593CM p)
@@ -148,7 +166,10 @@ namespace DIEFER.UI
         private void RefrescarListasRoles()
         {
             if (cmbRoles.SelectedValue == null) return;
-            int idRol = (int)cmbRoles.SelectedValue;
+
+            if (cmbRoles.SelectedValue is Rol_593CM) return;
+
+            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
 
             lstAsignadosR.Items.Clear();
             foreach (var comp in _bll.ObtenerComponentesDeRol_593CM(idRol))
@@ -162,7 +183,7 @@ namespace DIEFER.UI
         private void btnAgregarR_Click(object sender, EventArgs e)
         {
             if (cmbRoles.SelectedValue == null || lstDisponiblesR.SelectedItem == null) return;
-            int idRol = (int)cmbRoles.SelectedValue;
+            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
             var item  = ((PermisoItem)lstDisponiblesR.SelectedItem).Permiso;
 
             bool ok;
@@ -182,7 +203,7 @@ namespace DIEFER.UI
         private void btnQuitarR_Click(object sender, EventArgs e)
         {
             if (cmbRoles.SelectedValue == null || lstAsignadosR.SelectedItem == null) return;
-            int idRol = (int)cmbRoles.SelectedValue;
+            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
             var item  = ((PermisoItem)lstAsignadosR.SelectedItem).Permiso;
 
             if (item is Patente_593CM p)
