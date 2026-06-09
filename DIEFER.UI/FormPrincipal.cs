@@ -42,6 +42,7 @@ namespace DIEFER.UI
             mnuAdmin_593CM.Text           = Get_593CM(textos, "menu_admin",           "ADMIN");
             mnuAdminUsuarios_593CM.Text   = Get_593CM(textos, "menu_admin_usuarios",  "Usuarios");
             mnuAdminBitacora_593CM.Text   = Get_593CM(textos, "menu_admin_bitacora",  "Bitácora de Eventos");
+            mnuAdminPerfiles_593CM.Text   = Get_593CM(textos, "menu_admin_perfiles",  "Perfiles");
             mnuMaestros_593CM.Text        = Get_593CM(textos, "menu_maestros",        "MAESTROS");
             mnuUsuario_593CM.Text         = Get_593CM(textos, "menu_usuario",         "USUARIO");
             mnuReLogin_593CM.Text         = Get_593CM(textos, "menu_relogin",         "Re-Login");
@@ -85,6 +86,7 @@ namespace DIEFER.UI
 
             mnuAdminUsuarios_593CM.Enabled = esAdmin;
             mnuAdminBitacora_593CM.Enabled = puedeAuditoria;
+            mnuAdminPerfiles_593CM.Enabled = esAdmin;
             mnuAdmin_593CM.Visible         = esAdmin || puedeAuditoria;
         }
 
@@ -93,6 +95,15 @@ namespace DIEFER.UI
         private void mnuAdminUsuarios_Click_593CM(object sender, EventArgs e)
         {
             var f = new FormUsuarios_593CM();
+            f.MdiParent = this;
+            f.Show();
+        }
+
+        // ── ADMIN → Perfiles ────────────────────────────────────────────────────────────
+
+        private void mnuPerfiles_Click_593CM(object sender, EventArgs e)
+        {
+            var f = new FormPerfiles_593CM();
             f.MdiParent = this;
             f.Show();
         }

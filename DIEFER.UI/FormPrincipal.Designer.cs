@@ -18,6 +18,7 @@ namespace DIEFER.UI
             this.mnuAdmin_593CM           = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAdminUsuarios_593CM   = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAdminBitacora_593CM   = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminPerfiles_593CM   = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuMaestros_593CM        = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUsuario_593CM         = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuReLogin_593CM         = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,7 +54,7 @@ namespace DIEFER.UI
 
             // mnuAdmin_593CM
             this.mnuAdmin_593CM.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM
+                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM, this.mnuAdminPerfiles_593CM
             });
             this.mnuAdmin_593CM.Name = "mnuAdmin_593CM";
             this.mnuAdmin_593CM.Text = "ADMIN";
@@ -67,6 +68,11 @@ namespace DIEFER.UI
             this.mnuAdminBitacora_593CM.Name   = "mnuAdminBitacora_593CM";
             this.mnuAdminBitacora_593CM.Text   = "Bitácora de Eventos";
             this.mnuAdminBitacora_593CM.Click += new System.EventHandler(this.mnuBitacora_Click_593CM);
+
+            // mnuAdminPerfiles_593CM
+            this.mnuAdminPerfiles_593CM.Name   = "mnuAdminPerfiles_593CM";
+            this.mnuAdminPerfiles_593CM.Text   = "Perfiles";
+            this.mnuAdminPerfiles_593CM.Click += new System.EventHandler(this.mnuPerfiles_Click_593CM);
 
             // mnuMaestros_593CM (grisado)
             this.mnuMaestros_593CM.Name    = "mnuMaestros_593CM";
@@ -175,6 +181,7 @@ namespace DIEFER.UI
         private System.Windows.Forms.ToolStripMenuItem     mnuAdmin_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminUsuarios_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminBitacora_593CM;
+        private System.Windows.Forms.ToolStripMenuItem     mnuAdminPerfiles_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuMaestros_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuUsuario_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuReLogin_593CM;
