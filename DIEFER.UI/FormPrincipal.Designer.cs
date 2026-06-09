@@ -18,10 +18,12 @@ namespace DIEFER.UI
             this.mnuAdmin_593CM           = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAdminUsuarios_593CM   = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuAdminBitacora_593CM   = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminPerfiles_593CM   = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuMaestros_593CM        = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUsuario_593CM         = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuReLogin_593CM         = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuCambiarClave_593CM    = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuCambiarIdioma_593CM   = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuLogout_593CM          = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuVentas_593CM          = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuCompras_593CM         = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,7 +54,7 @@ namespace DIEFER.UI
 
             // mnuAdmin_593CM
             this.mnuAdmin_593CM.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM
+                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM, this.mnuAdminPerfiles_593CM
             });
             this.mnuAdmin_593CM.Name = "mnuAdmin_593CM";
             this.mnuAdmin_593CM.Text = "ADMIN";
@@ -67,6 +69,11 @@ namespace DIEFER.UI
             this.mnuAdminBitacora_593CM.Text   = "Bitácora de Eventos";
             this.mnuAdminBitacora_593CM.Click += new System.EventHandler(this.mnuBitacora_Click_593CM);
 
+            // mnuAdminPerfiles_593CM
+            this.mnuAdminPerfiles_593CM.Name   = "mnuAdminPerfiles_593CM";
+            this.mnuAdminPerfiles_593CM.Text   = "Perfiles";
+            this.mnuAdminPerfiles_593CM.Click += new System.EventHandler(this.mnuPerfiles_Click_593CM);
+
             // mnuMaestros_593CM (grisado)
             this.mnuMaestros_593CM.Name    = "mnuMaestros_593CM";
             this.mnuMaestros_593CM.Text    = "MAESTROS";
@@ -74,7 +81,7 @@ namespace DIEFER.UI
 
             // mnuUsuario_593CM
             this.mnuUsuario_593CM.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.mnuReLogin_593CM, this.mnuCambiarClave_593CM, this.mnuLogout_593CM
+                this.mnuReLogin_593CM, this.mnuCambiarClave_593CM, this.mnuCambiarIdioma_593CM, this.mnuLogout_593CM
             });
             this.mnuUsuario_593CM.Name = "mnuUsuario_593CM";
             this.mnuUsuario_593CM.Text = "USUARIO";
@@ -87,6 +94,10 @@ namespace DIEFER.UI
             this.mnuCambiarClave_593CM.Name   = "mnuCambiarClave_593CM";
             this.mnuCambiarClave_593CM.Text   = "Cambiar Clave";
             this.mnuCambiarClave_593CM.Click += new System.EventHandler(this.mnuCambiarClave_Click_593CM);
+
+            this.mnuCambiarIdioma_593CM.Name   = "mnuCambiarIdioma_593CM";
+            this.mnuCambiarIdioma_593CM.Text   = "Cambiar Idioma";
+            this.mnuCambiarIdioma_593CM.Click += new System.EventHandler(this.mnuCambiarIdioma_Click_593CM);
 
             this.mnuLogout_593CM.Name   = "mnuLogout_593CM";
             this.mnuLogout_593CM.Text   = "Logout";
@@ -170,10 +181,12 @@ namespace DIEFER.UI
         private System.Windows.Forms.ToolStripMenuItem     mnuAdmin_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminUsuarios_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminBitacora_593CM;
+        private System.Windows.Forms.ToolStripMenuItem     mnuAdminPerfiles_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuMaestros_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuUsuario_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuReLogin_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuCambiarClave_593CM;
+        private System.Windows.Forms.ToolStripMenuItem     mnuCambiarIdioma_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuLogout_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuVentas_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuCompras_593CM;

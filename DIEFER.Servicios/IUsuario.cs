@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using DIEFER.BE;
 
-namespace DIEFER.DAL
+namespace DIEFER.Servicios
 {
-    // Contrato de acceso a datos para la entidad Usuario_593CM.
-    public interface IUsuarioDB_593CM
+    public interface IUsuario_593CM
     {
         bool ExisteDNI_593CM(string dni);
         bool ExisteLogin_593CM(string login, string dniExcluir = null);
@@ -22,5 +21,6 @@ namespace DIEFER.DAL
                              string filtroLogin = null);
         List<string> GetLoginsParaDV_593CM();
         (string Nombre, string Apellido) BuscarNombreApellidoPorLogin_593CM(string login);
+        bool ActualizarIdioma_593CM(string dni, string codigo);
     }
 }

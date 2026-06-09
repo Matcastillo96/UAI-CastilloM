@@ -1,21 +1,24 @@
 using System.Collections.Generic;
 using DIEFER.BE;
 using DIEFER.DAL;
+using DIEFER.Servicios;
 
 namespace DIEFER.BLL
 {
     public class RolBLL_593CM
     {
-        private readonly IRolDB_593CM _rolDB_593CM;
+        private readonly IRol_593CM _rolDAL_593CM;
 
-        public RolBLL_593CM(IRolDB_593CM rolDB)
+        public RolBLL_593CM() : this(new RolDAL_593CM()) { }
+
+        public RolBLL_593CM(IRol_593CM rolDAL)
         {
-            _rolDB_593CM = rolDB;
+            _rolDAL_593CM = rolDAL;
         }
 
-        public List<Rol_593CM> ListarTodos_593CM() => _rolDB_593CM.ListarTodos_593CM();
+        public List<Rol_593CM> ListarTodos_593CM() => _rolDAL_593CM.ListarTodos_593CM();
 
         public int ObtenerIDPorNombre_593CM(string nombre) =>
-            _rolDB_593CM.ObtenerIDPorNombre_593CM(nombre);
+            _rolDAL_593CM.ObtenerIDPorNombre_593CM(nombre);
     }
 }

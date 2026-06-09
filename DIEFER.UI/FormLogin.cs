@@ -1,14 +1,13 @@
 using System;
 using System.Windows.Forms;
 using DIEFER.BLL;
-using DIEFER.DAL;
 
 namespace DIEFER.UI
 {
     // Formulario de inicio de sesión — primer punto de contacto del usuario con DIEFER.
     public partial class FormLogin_593CM : Form
     {
-        private readonly UsuarioController_593CM _usuarioCtrl_593CM;
+        private readonly UsuarioBLL_593CM _usuarioCtrl_593CM;
         private readonly bool _esModoReLogin_593CM;
 
         // Constructor para el login inicial al arrancar la app
@@ -19,10 +18,7 @@ namespace DIEFER.UI
         {
             InitializeComponent();
             _esModoReLogin_593CM = esModoReLogin;
-            var usuarioDB  = new UsuarioDB_593CM();
-            var eventoDB   = new EventoDAL_593CM();
-            var eventoBLL  = new EventoBLL_593CM(eventoDB, usuarioDB);
-            _usuarioCtrl_593CM = new UsuarioController_593CM(usuarioDB, eventoBLL);
+            _usuarioCtrl_593CM   = new UsuarioBLL_593CM();
         }
 
         private void btnEntrar_Click_593CM(object sender, EventArgs e)
@@ -40,7 +36,7 @@ namespace DIEFER.UI
 
             switch (resultado)
             {
-                case UsuarioController_593CM.ResultadoLogin_593CM.Exitoso:
+                case UsuarioBLL_593CM.ResultadoLogin_593CM.Exitoso:
                     MostrarError_593CM(string.Empty);
                     if (_esModoReLogin_593CM)
                     {
@@ -57,22 +53,22 @@ namespace DIEFER.UI
                     }
                     break;
 
-                case UsuarioController_593CM.ResultadoLogin_593CM.Bloqueado:
+                case UsuarioBLL_593CM.ResultadoLogin_593CM.Bloqueado:
                     MostrarError_593CM("Cuenta bloqueada por 3 intentos fallidos. Contacte al Administrador.");
                     LimpiarCampos_593CM();
                     break;
 
-                case UsuarioController_593CM.ResultadoLogin_593CM.CuentaNoExistente:
+                case UsuarioBLL_593CM.ResultadoLogin_593CM.CuentaNoExistente:
                     MostrarError_593CM("La cuenta ingresada no existe.");
                     LimpiarCampos_593CM();
                     break;
 
-                case UsuarioController_593CM.ResultadoLogin_593CM.CuentaInactivaBloqueada:
+                case UsuarioBLL_593CM.ResultadoLogin_593CM.CuentaInactivaBloqueada:
                     MostrarError_593CM("Cuenta inactiva o bloqueada. Contacte al Administrador.");
                     LimpiarCampos_593CM();
                     break;
 
-                case UsuarioController_593CM.ResultadoLogin_593CM.ErrorIntegridad:
+                case UsuarioBLL_593CM.ResultadoLogin_593CM.ErrorIntegridad:
                     MostrarError_593CM("Error de integridad de datos detectado. Contacte al Administrador.");
                     LimpiarCampos_593CM();
                     break;

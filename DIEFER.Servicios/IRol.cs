@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using DIEFER.BE;
 
-namespace DIEFER.DAL
+namespace DIEFER.Servicios
 {
-    public interface IRolDB_593CM
+    public interface IRol_593CM
     {
         List<Rol_593CM> ListarTodos_593CM();
         int ObtenerIDPorNombre_593CM(string nombre);

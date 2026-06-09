@@ -51,8 +51,14 @@ BEGIN
         ID_rol    INT           NOT NULL REFERENCES ROLES(ID_rol),
         Email     NVARCHAR(120) NOT NULL,
         Bloqueado BIT           NOT NULL DEFAULT 0,
-        Activo    BIT           NOT NULL DEFAULT 1
+        Activo    BIT           NOT NULL DEFAULT 1,
+        Idioma    NVARCHAR(10)  NOT NULL DEFAULT 'es'
     );
+
+    -- Migración para bases existentes: agregar columna Idioma si no existe
+    IF NOT EXISTS (SELECT 1 FROM sys.columns
+                   WHERE object_id = OBJECT_ID('USUARIO') AND name = 'Idioma')
+        ALTER TABLE USUARIO ADD Idioma NVARCHAR(10) NOT NULL DEFAULT 'es';
 END
 GO
 
@@ -72,7 +78,92 @@ BEGIN
 END
 GO
 
--- ── 5. Usuario administrador semilla ─────────────────────────────────────────
+-- ── 5. Composite de Permisos: Patente / Familia ──────────────────────────────
+
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Patente' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Patente (
+        ID_patente INT          NOT NULL IDENTITY(1,1) PRIMARY KEY,
+        Nombre     NVARCHAR(80) NOT NULL UNIQUE,
+        Permiso    NVARCHAR(80) NOT NULL
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Familia' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Familia (
+        ID_familia INT          NOT NULL IDENTITY(1,1) PRIMARY KEY,
+        Nombre     NVARCHAR(80) NOT NULL UNIQUE
+    );
+END
+GO
+
+-- Familia contiene Patentes (hoja)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Familia_Patente' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Familia_Patente (
+        ID_familia INT NOT NULL REFERENCES Familia(ID_familia) ON DELETE CASCADE,
+        ID_patente INT NOT NULL REFERENCES Patente(ID_patente) ON DELETE CASCADE,
+        CONSTRAINT PK_Familia_Patente PRIMARY KEY (ID_familia, ID_patente)
+    );
+END
+GO
+
+-- Familia contiene sub-Familias (composite recursivo)
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Familia_Familia' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Familia_Familia (
+        ID_familiaPadre INT NOT NULL REFERENCES Familia(ID_familia),
+        ID_familiaHija  INT NOT NULL REFERENCES Familia(ID_familia),
+        CONSTRAINT PK_Familia_Familia  PRIMARY KEY (ID_familiaPadre, ID_familiaHija),
+        CONSTRAINT CK_FF_NoAutoRef     CHECK (ID_familiaPadre <> ID_familiaHija)
+    );
+END
+GO
+
+-- Rol asignado a Patentes directas
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Rol_Patente' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Rol_Patente (
+        ID_rol     INT NOT NULL REFERENCES ROLES(ID_rol) ON DELETE CASCADE,
+        ID_patente INT NOT NULL REFERENCES Patente(ID_patente) ON DELETE CASCADE,
+        CONSTRAINT PK_Rol_Patente PRIMARY KEY (ID_rol, ID_patente)
+    );
+END
+GO
+
+-- Rol asignado a Familias
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'Rol_Familia' AND xtype = 'U')
+BEGIN
+    CREATE TABLE Rol_Familia (
+        ID_rol     INT NOT NULL REFERENCES ROLES(ID_rol) ON DELETE CASCADE,
+        ID_familia INT NOT NULL REFERENCES Familia(ID_familia) ON DELETE CASCADE,
+        CONSTRAINT PK_Rol_Familia PRIMARY KEY (ID_rol, ID_familia)
+    );
+END
+GO
+
+-- Patentes semilla (precargadas — la app no las crea)
+IF NOT EXISTS (SELECT 1 FROM Patente)
+BEGIN
+    INSERT INTO Patente (Nombre, Permiso) VALUES
+        ('Alta de usuario',        'USUARIO_ALTA'),
+        ('Baja de usuario',        'USUARIO_BAJA'),
+        ('Modificar usuario',      'USUARIO_MODIFICAR'),
+        ('Ver bitácora',           'BITACORA_VER'),
+        ('Exportar bitácora',      'BITACORA_EXPORTAR'),
+        ('Crear orden de trabajo', 'OT_CREAR'),
+        ('Cerrar orden de trabajo','OT_CERRAR'),
+        ('Ver stock',              'STOCK_VER'),
+        ('Modificar stock',        'STOCK_MODIFICAR'),
+        ('Ver reportes',           'REPORTES_VER'),
+        ('Generar reportes',       'REPORTES_GENERAR'),
+        ('Gestionar perfiles',     'PERFILES_GESTIONAR');
+END
+GO
+
+-- ── 6. Usuario administrador semilla ─────────────────────────────────────────
 -- Login:    Sistema.Admin
 -- Password: SHA-256('00000000Admin') — mismo algoritmo que usa la aplicación
 DECLARE @passHash NVARCHAR(64) =

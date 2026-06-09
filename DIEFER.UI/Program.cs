@@ -15,9 +15,11 @@ namespace DIEFER.UI
             string appDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             AppDomain.CurrentDomain.SetData("DataDirectory", appDir);
 
+            IdiomaService_593CM.GetInstancia_593CM()
+                .CargarIdiomas_593CM(Path.Combine(appDir, "idiomas"));
+
             try
             {
-                ConexionDB_593CM.Inicializar_593CM(ConfigManager_593CM.ConnectionString_593CM);
                 ConexionDB_593CM.VerificarConexion_593CM();
             }
             catch (System.Data.SqlClient.SqlException ex)
@@ -50,8 +52,7 @@ namespace DIEFER.UI
         {
             try
             {
-                var cs = ConfigManager_593CM.ConnectionString_593CM;
-                var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(cs);
+                var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ConexionDB_593CM.ConnectionString_593CM);
                 return builder.DataSource;
             }
             catch { return "desconocido"; }

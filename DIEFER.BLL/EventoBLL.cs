@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using DIEFER.BE;
 using DIEFER.DAL;
+using DIEFER.Servicios;
 // PrintDocument es de System.Drawing — no de System.Windows.Forms. El PrintDialog lo maneja el UI.
 
 namespace DIEFER.BLL
@@ -11,13 +12,15 @@ namespace DIEFER.BLL
     // Lógica de negocio para registro y consulta de eventos de la bitácora DIEFER.
     public class EventoBLL_593CM
     {
-        private readonly IEventoDAL_593CM  _eventoDAL_593CM;
-        private readonly IUsuarioDB_593CM  _usuarioDB_593CM;
+        private readonly IEventoDAL_593CM _eventoDAL_593CM;
+        private readonly IUsuario_593CM   _usuarioDAL_593CM;
 
-        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuarioDB_593CM usuarioDB)
+        public EventoBLL_593CM() : this(new EventoDAL_593CM(), new UsuarioDAL_593CM()) { }
+
+        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuario_593CM usuarioDAL)
         {
-            _eventoDAL_593CM = eventoDAL;
-            _usuarioDB_593CM = usuarioDB;
+            _eventoDAL_593CM  = eventoDAL;
+            _usuarioDAL_593CM = usuarioDAL;
         }
 
         // Punto único de registro — invocado por cada operación que genera un evento
@@ -44,7 +47,7 @@ namespace DIEFER.BLL
 
         public (string Nombre, string Apellido) GetNombreApellido_593CM(string login)
         {
-            return _usuarioDB_593CM.BuscarNombreApellidoPorLogin_593CM(login);
+            return _usuarioDAL_593CM.BuscarNombreApellidoPorLogin_593CM(login);
         }
 
         // Prepara el PrintDocument para imprimir — el PrintDialog lo muestra el UI (FormBitacora_593CM)

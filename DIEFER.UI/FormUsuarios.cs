@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using DIEFER.BE;
 using DIEFER.BLL;
-using DIEFER.DAL;
 
 namespace DIEFER.UI
 {
@@ -12,8 +11,8 @@ namespace DIEFER.UI
     {
         private enum Modo_593CM { Consulta, Anadir, Modificar, Eliminar, Desbloquear }
 
-        private readonly UsuarioController_593CM _ctrl_593CM;
-        private readonly RolBLL_593CM            _rolBLL_593CM;
+        private readonly UsuarioBLL_593CM _ctrl_593CM;
+        private readonly RolBLL_593CM     _rolBLL_593CM;
         private Modo_593CM   _modoActual_593CM   = Modo_593CM.Consulta;
         private string       _dniSeleccionado_593CM;
         private List<Usuario_593CM> _listaActual_593CM = new List<Usuario_593CM>();
@@ -21,11 +20,8 @@ namespace DIEFER.UI
         public FormUsuarios_593CM(string modoInicial = null)
         {
             InitializeComponent();
-            var usuarioDB  = new UsuarioDB_593CM();
-            var eventoDB   = new EventoDAL_593CM();
-            var eventoBLL  = new EventoBLL_593CM(eventoDB, usuarioDB);
-            _ctrl_593CM    = new UsuarioController_593CM(usuarioDB, eventoBLL);
-            _rolBLL_593CM  = new RolBLL_593CM(new RolDB_593CM());
+            _ctrl_593CM   = new UsuarioBLL_593CM();
+            _rolBLL_593CM = new RolBLL_593CM();
 
             foreach (var rol in _rolBLL_593CM.ListarTodos_593CM())
                 cboRol_593CM.Items.Add(rol.Nombre_593CM);
@@ -207,18 +203,18 @@ namespace DIEFER.UI
 
             switch (res)
             {
-                case UsuarioController_593CM.ResultadoCrear_593CM.Exitoso:
+                case UsuarioBLL_593CM.ResultadoCrear_593CM.Exitoso:
                     MostrarInfo_593CM("Usuario creado exitosamente.");
                     EstablecerModo_593CM(Modo_593CM.Consulta);
                     CargarGrilla_593CM();
                     break;
-                case UsuarioController_593CM.ResultadoCrear_593CM.DNIExistente:
+                case UsuarioBLL_593CM.ResultadoCrear_593CM.DNIExistente:
                     MostrarError_593CM("El DNI ya está registrado.");               break;
-                case UsuarioController_593CM.ResultadoCrear_593CM.LoginExistente:
+                case UsuarioBLL_593CM.ResultadoCrear_593CM.LoginExistente:
                     MostrarError_593CM("El Login generado ya existe en el sistema."); break;
-                case UsuarioController_593CM.ResultadoCrear_593CM.CamposRequeridos:
+                case UsuarioBLL_593CM.ResultadoCrear_593CM.CamposRequeridos:
                     MostrarError_593CM("Complete todos los campos requeridos.");      break;
-                case UsuarioController_593CM.ResultadoCrear_593CM.EmailInvalido:
+                case UsuarioBLL_593CM.ResultadoCrear_593CM.EmailInvalido:
                     MostrarError_593CM("El formato del Email no es válido.");         break;
             }
         }
@@ -231,16 +227,16 @@ namespace DIEFER.UI
 
             switch (res)
             {
-                case UsuarioController_593CM.ResultadoModificar_593CM.Exitoso:
+                case UsuarioBLL_593CM.ResultadoModificar_593CM.Exitoso:
                     MostrarInfo_593CM("Modificado correctamente.");
                     EstablecerModo_593CM(Modo_593CM.Consulta);
                     CargarGrilla_593CM();
                     break;
-                case UsuarioController_593CM.ResultadoModificar_593CM.CamposRequeridos:
+                case UsuarioBLL_593CM.ResultadoModificar_593CM.CamposRequeridos:
                     MostrarError_593CM("Complete todos los campos requeridos."); break;
-                case UsuarioController_593CM.ResultadoModificar_593CM.EmailInvalido:
+                case UsuarioBLL_593CM.ResultadoModificar_593CM.EmailInvalido:
                     MostrarError_593CM("El formato del Email no es válido.");    break;
-                case UsuarioController_593CM.ResultadoModificar_593CM.LoginExistente:
+                case UsuarioBLL_593CM.ResultadoModificar_593CM.LoginExistente:
                     MostrarError_593CM("El Login ya existe en otro usuario.");   break;
             }
         }
@@ -258,7 +254,7 @@ namespace DIEFER.UI
             if (confirm != DialogResult.Yes) return;
 
             var res = _ctrl_593CM.CambiarEstado_593CM(_dniSeleccionado_593CM, activar);
-            if (res == UsuarioController_593CM.ResultadoCambiarEstado_593CM.NoPermitido)
+            if (res == UsuarioBLL_593CM.ResultadoCambiarEstado_593CM.NoPermitido)
                 MostrarError_593CM("No puede desactivar su propia cuenta.");
             else
             {
@@ -277,18 +273,18 @@ namespace DIEFER.UI
             var res = _ctrl_593CM.Desbloquear_593CM(_dniSeleccionado_593CM, clave, confirm);
             switch (res)
             {
-                case UsuarioController_593CM.ResultadoDesbloquear_593CM.Exitoso:
+                case UsuarioBLL_593CM.ResultadoDesbloquear_593CM.Exitoso:
                     MostrarInfo_593CM("Usuario desbloqueado y contraseña actualizada.");
                     EstablecerModo_593CM(Modo_593CM.Consulta);
                     CargarGrilla_593CM();
                     break;
-                case UsuarioController_593CM.ResultadoDesbloquear_593CM.ConfirmacionNoCoincide:
+                case UsuarioBLL_593CM.ResultadoDesbloquear_593CM.ConfirmacionNoCoincide:
                     MostrarError_593CM("Las contraseñas no coinciden.");
                     break;
-                case UsuarioController_593CM.ResultadoDesbloquear_593CM.NuevaClaveInvalida:
+                case UsuarioBLL_593CM.ResultadoDesbloquear_593CM.NuevaClaveInvalida:
                     MostrarError_593CM("La contraseña debe tener mínimo 8 caracteres, una mayúscula y un número.");
                     break;
-                case UsuarioController_593CM.ResultadoDesbloquear_593CM.ErrorDB:
+                case UsuarioBLL_593CM.ResultadoDesbloquear_593CM.ErrorDB:
                     MostrarError_593CM("No se pudo desbloquear el usuario.");
                     break;
             }

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using DIEFER.BE;
+using DIEFER.Servicios;
 
 namespace DIEFER.DAL
 {
-    public class RolDB_593CM : IRolDB_593CM
+    public class RolDAL_593CM : IRol_593CM
     {
         public List<Rol_593CM> ListarTodos_593CM()
         {
