@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Windows.Forms;
 using DIEFER.DAL;
-using DIEFER.Servicios;
 
 namespace DIEFER.UI
 {
@@ -17,7 +16,6 @@ namespace DIEFER.UI
 
             try
             {
-                ConexionDB_593CM.Inicializar_593CM(ConfigManager_593CM.ConnectionString_593CM);
                 ConexionDB_593CM.VerificarConexion_593CM();
             }
             catch (System.Data.SqlClient.SqlException ex)
@@ -50,8 +48,7 @@ namespace DIEFER.UI
         {
             try
             {
-                var cs = ConfigManager_593CM.ConnectionString_593CM;
-                var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(cs);
+                var builder = new System.Data.SqlClient.SqlConnectionStringBuilder(ConexionDB_593CM.ConnectionString_593CM);
                 return builder.DataSource;
             }
             catch { return "desconocido"; }

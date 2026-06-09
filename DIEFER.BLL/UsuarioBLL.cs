@@ -7,22 +7,22 @@ using DIEFER.Servicios;
 
 namespace DIEFER.BLL
 {
-    // Controlador de negocio para la gestión de usuarios DIEFER.
-    public class UsuarioController_593CM
+    public class UsuarioBLL_593CM
     {
-        private readonly IUsuarioDB_593CM _usuarioDB_593CM;
-        private readonly EventoBLL_593CM  _eventoBLL_593CM;
-        private readonly RolBLL_593CM     _rolBLL_593CM;
+        private readonly IUsuario_593CM  _usuarioDAL_593CM;
+        private readonly EventoBLL_593CM _eventoBLL_593CM;
+        private readonly RolBLL_593CM    _rolBLL_593CM;
 
-        // Contador transitorio de intentos fallidos por login — no se persiste en USUARIO
         private static readonly Dictionary<string, int> _intentosFallidos_593CM =
             new Dictionary<string, int>();
 
-        public UsuarioController_593CM(IUsuarioDB_593CM usuarioDB, EventoBLL_593CM eventoBLL)
+        public UsuarioBLL_593CM() : this(new UsuarioDAL_593CM(), new EventoBLL_593CM()) { }
+
+        public UsuarioBLL_593CM(IUsuario_593CM usuarioDAL, EventoBLL_593CM eventoBLL)
         {
-            _usuarioDB_593CM = usuarioDB;
-            _eventoBLL_593CM = eventoBLL;
-            _rolBLL_593CM    = new RolBLL_593CM(new RolDB_593CM());
+            _usuarioDAL_593CM = usuarioDAL;
+            _eventoBLL_593CM  = eventoBLL;
+            _rolBLL_593CM     = new RolBLL_593CM();
         }
 
         // ── Autenticación ───────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ namespace DIEFER.BLL
                                                       out Usuario_593CM usuarioAutenticado)
         {
             usuarioAutenticado = null;
-            var usuario = _usuarioDB_593CM.BuscarPorLogin_593CM(login);
+            var usuario = _usuarioDAL_593CM.BuscarPorLogin_593CM(login);
 
             if (usuario == null)
                 return ResultadoLogin_593CM.CuentaNoExistente;
@@ -59,7 +59,7 @@ namespace DIEFER.BLL
 
                 if (_intentosFallidos_593CM[login] >= 3)
                 {
-                    _usuarioDB_593CM.ActualizarBloqueo_593CM(usuario.DNI_593CM, true);
+                    _usuarioDAL_593CM.ActualizarBloqueo_593CM(usuario.DNI_593CM, true);
                     _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Bloquear Usuario", 1);
                     ActualizarDV_593CM();
                     return ResultadoLogin_593CM.Bloqueado;
@@ -67,12 +67,10 @@ namespace DIEFER.BLL
                 return ResultadoLogin_593CM.CredencialesInvalidas;
             }
 
-            // Verificar integridad DV
-            var logins = _usuarioDB_593CM.GetLoginsParaDV_593CM();
+            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
             if (!DVService_593CM.VerificarIntegridad_593CM(logins))
                 return ResultadoLogin_593CM.ErrorIntegridad;
 
-            // Éxito
             _intentosFallidos_593CM.Remove(login);
             SessionManager_593CM.GetInstancia_593CM().Iniciar_593CM(usuario);
             _eventoBLL_593CM.Registrar_593CM(login, "Usuario", "Login", 1);
@@ -98,13 +96,13 @@ namespace DIEFER.BLL
             if (!EsEmailValido_593CM(email))
                 return ResultadoCrear_593CM.EmailInvalido;
 
-            if (_usuarioDB_593CM.ExisteDNI_593CM(dni))
+            if (_usuarioDAL_593CM.ExisteDNI_593CM(dni))
                 return ResultadoCrear_593CM.DNIExistente;
 
             string login    = $"{nombre.Trim()}.{apellidos.Trim()}";
             string passHash = CriptoService_593CM.HashSHA256_593CM($"{dni}{apellidos.Trim()}");
 
-            if (_usuarioDB_593CM.ExisteLogin_593CM(login))
+            if (_usuarioDAL_593CM.ExisteLogin_593CM(login))
                 return ResultadoCrear_593CM.LoginExistente;
 
             var u = new Usuario_593CM
@@ -121,7 +119,7 @@ namespace DIEFER.BLL
                 Activo_593CM    = true,
             };
 
-            _usuarioDB_593CM.Insertar_593CM(u);
+            _usuarioDAL_593CM.Insertar_593CM(u);
             ActualizarDV_593CM();
 
             string loginActual = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM ?? "Sistema";
@@ -147,7 +145,7 @@ namespace DIEFER.BLL
                 return ResultadoModificar_593CM.EmailInvalido;
 
             string nuevoLogin = $"{nombre.Trim()}.{apellidos.Trim()}";
-            if (_usuarioDB_593CM.ExisteLogin_593CM(nuevoLogin, dni))
+            if (_usuarioDAL_593CM.ExisteLogin_593CM(nuevoLogin, dni))
                 return ResultadoModificar_593CM.LoginExistente;
 
             var u = new Usuario_593CM
@@ -161,7 +159,7 @@ namespace DIEFER.BLL
                 Email_593CM     = email.Trim(),
             };
 
-            _usuarioDB_593CM.Actualizar_593CM(u);
+            _usuarioDAL_593CM.Actualizar_593CM(u);
             ActualizarDV_593CM();
 
             string loginActual = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM ?? "Sistema";
@@ -185,9 +183,9 @@ namespace DIEFER.BLL
                 return ResultadoDesbloquear_593CM.NuevaClaveInvalida;
 
             string nuevoHash = CriptoService_593CM.HashSHA256_593CM(nuevaClave);
-            _usuarioDB_593CM.ActualizarPassword_593CM(dni, nuevoHash);
+            _usuarioDAL_593CM.ActualizarPassword_593CM(dni, nuevoHash);
 
-            bool ok = _usuarioDB_593CM.ActualizarBloqueo_593CM(dni, false);
+            bool ok = _usuarioDAL_593CM.ActualizarBloqueo_593CM(dni, false);
             if (!ok) return ResultadoDesbloquear_593CM.ErrorDB;
 
             ActualizarDV_593CM();
@@ -206,7 +204,7 @@ namespace DIEFER.BLL
             if (!activar && actual != null && actual.DNI_593CM == dni)
                 return ResultadoCambiarEstado_593CM.NoPermitido;
 
-            _usuarioDB_593CM.ActualizarActivo_593CM(dni, activar);
+            _usuarioDAL_593CM.ActualizarActivo_593CM(dni, activar);
             ActualizarDV_593CM();
 
             string loginActual = actual?.Login_593CM ?? "Sistema";
@@ -236,9 +234,8 @@ namespace DIEFER.BLL
                 return ResultadoCambiarClave_593CM.ClaveActualIncorrecta;
 
             string hashNuevo = CriptoService_593CM.HashSHA256_593CM(claveNueva);
-            _usuarioDB_593CM.ActualizarPassword_593CM(usuario.DNI_593CM, hashNuevo);
+            _usuarioDAL_593CM.ActualizarPassword_593CM(usuario.DNI_593CM, hashNuevo);
 
-            // Actualizar la instancia en sesión para que la comparación futura sea correcta
             usuario.Password_593CM = hashNuevo;
 
             _eventoBLL_593CM.Registrar_593CM(usuario.Login_593CM, "Usuario", "Cambiar Clave", 2);
@@ -257,15 +254,15 @@ namespace DIEFER.BLL
 
         // ── Consultas ───────────────────────────────────────────────────────────────────
 
-        public Usuario_593CM GetByDNI_593CM(string dni) => _usuarioDB_593CM.BuscarPorDNI_593CM(dni);
+        public Usuario_593CM GetByDNI_593CM(string dni) => _usuarioDAL_593CM.BuscarPorDNI_593CM(dni);
 
-        public List<Usuario_593CM> GetBloqueados_593CM() => _usuarioDB_593CM.GetBloqueados_593CM();
+        public List<Usuario_593CM> GetBloqueados_593CM() => _usuarioDAL_593CM.GetBloqueados_593CM();
 
         public List<Usuario_593CM> Listar_593CM(bool soloActivos, string fdni = null,
                                                  string fape = null, string fnom = null,
                                                  string femail = null, string frol = null,
                                                  string flogin = null)
-            => _usuarioDB_593CM.Listar_593CM(soloActivos, fdni, fape, fnom, femail, frol, flogin);
+            => _usuarioDAL_593CM.Listar_593CM(soloActivos, fdni, fape, fnom, femail, frol, flogin);
 
         // ── Helpers ─────────────────────────────────────────────────────────────────────
 
@@ -274,7 +271,6 @@ namespace DIEFER.BLL
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
-        // Mínimo: 8 caracteres, al menos 1 número, al menos 1 mayúscula
         private static bool CumpleReglasClave_593CM(string clave)
         {
             if (clave.Length < 8) return false;
@@ -285,7 +281,7 @@ namespace DIEFER.BLL
 
         private void ActualizarDV_593CM()
         {
-            var logins = _usuarioDB_593CM.GetLoginsParaDV_593CM();
+            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
             DVService_593CM.ActualizarReferencia_593CM(logins);
         }
     }

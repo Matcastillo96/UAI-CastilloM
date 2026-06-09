@@ -2,7 +2,6 @@ using System;
 using System.Windows.Forms;
 using DIEFER.BE;
 using DIEFER.BLL;
-using DIEFER.DAL;
 using DIEFER.Servicios;
 
 namespace DIEFER.UI
@@ -10,16 +9,12 @@ namespace DIEFER.UI
     // Formulario MDI principal — contenedor de todos los módulos de DIEFER.
     public partial class FormPrincipal_593CM : Form
     {
-        private readonly UsuarioController_593CM _usuarioCtrl_593CM;
-        private readonly EventoBLL_593CM         _eventoBLL_593CM;
+        private readonly UsuarioBLL_593CM _usuarioCtrl_593CM;
 
         public FormPrincipal_593CM()
         {
             InitializeComponent();
-            var usuarioDB  = new UsuarioDB_593CM();
-            var eventoDB   = new EventoDAL_593CM();
-            _eventoBLL_593CM   = new EventoBLL_593CM(eventoDB, usuarioDB);
-            _usuarioCtrl_593CM = new UsuarioController_593CM(usuarioDB, _eventoBLL_593CM);
+            _usuarioCtrl_593CM = new UsuarioBLL_593CM();
         }
 
         protected override void OnLoad(EventArgs e)

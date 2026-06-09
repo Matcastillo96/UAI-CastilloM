@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Text;
 using DIEFER.BE;
+using DIEFER.Servicios;
 
 namespace DIEFER.DAL
 {
-    // Implementación de IUsuarioDB_593CM sobre SQL Server LocalDB.
-    // Todas las consultas usan SqlParameter — sin concatenación de strings con datos de usuario.
-    public class UsuarioDB_593CM : IUsuarioDB_593CM
+    public class UsuarioDAL_593CM : IUsuario_593CM
     {
         private const string SelectConJoin_593CM = @"
 SELECT U.DNI, U.Apellidos, U.Nombre, U.Login, U.Password,

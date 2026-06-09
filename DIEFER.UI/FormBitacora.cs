@@ -4,7 +4,6 @@ using System.Drawing.Printing;
 using System.Windows.Forms;
 using DIEFER.BE;
 using DIEFER.BLL;
-using DIEFER.DAL;
 
 namespace DIEFER.UI
 {
@@ -16,9 +15,7 @@ namespace DIEFER.UI
         public FormBitacora_593CM()
         {
             InitializeComponent();
-            var usuarioDB    = new UsuarioDB_593CM();
-            var eventoDB     = new EventoDAL_593CM();
-            _eventoBLL_593CM = new EventoBLL_593CM(eventoDB, usuarioDB);
+            _eventoBLL_593CM = new EventoBLL_593CM();
 
             PoblarCombos_593CM();
             CargarDefault_593CM();
