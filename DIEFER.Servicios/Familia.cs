@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
     // Composite del patrón Composite: agrupa Patentes y/o sub-Familias.
     public class Familia_593CM : IPermiso_593CM

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
-using DIEFER.BE;
 using DIEFER.BLL;
+using DIEFER.Servicios;
 
 namespace DIEFER.UI
 {
@@ -44,22 +43,36 @@ namespace DIEFER.UI
 
         private void CargarComboFamilias()
         {
-            cmbFamilias.DataSource    = null;
-            cmbFamilias.DataSource    = _bll.ListarFamilias_593CM();
+            cmbFamilias.SelectedIndexChanged -= cmbFamilias_SelectedIndexChanged;
+
+            cmbFamilias.DataSource = null;
             cmbFamilias.DisplayMember = "Nombre_593CM";
-            cmbFamilias.ValueMember   = "ID_familia_593CM";
+            cmbFamilias.ValueMember = "ID_familia_593CM";
+            cmbFamilias.DataSource = _bll.ListarFamilias_593CM();
+
+            cmbFamilias.SelectedIndexChanged += cmbFamilias_SelectedIndexChanged;
+
             if (cmbFamilias.Items.Count > 0)
-                RefrescarListasFamilias();
+                cmbFamilias.SelectedIndex = 0;
+
+            RefrescarListasFamilias();
         }
 
         private void CargarComboRoles()
         {
-            cmbRoles.DataSource    = null;
-            cmbRoles.DataSource    = _rolBLL.ListarTodos_593CM();
+            cmbRoles.SelectedIndexChanged -= cmbRoles_SelectedIndexChanged;
+
+            cmbRoles.DataSource = null;
             cmbRoles.DisplayMember = "Nombre_593CM";
-            cmbRoles.ValueMember   = "ID_593CM";
+            cmbRoles.ValueMember = "ID_593CM";
+            cmbRoles.DataSource = _rolBLL.ListarTodos_593CM();
+
+            cmbRoles.SelectedIndexChanged += cmbRoles_SelectedIndexChanged;
+
             if (cmbRoles.Items.Count > 0)
-                RefrescarListasRoles();
+                cmbRoles.SelectedIndex = 0;
+
+            RefrescarListasRoles();
         }
 
         // ── Familia tab ───────────────────────────────────────────────────────────────
@@ -71,10 +84,12 @@ namespace DIEFER.UI
 
         private void RefrescarListasFamilias()
         {
-            if (cmbFamilias.SelectedValue == null) return;
+            if (!(cmbFamilias.SelectedValue is int)) return;
+
             int idFamilia = (int)cmbFamilias.SelectedValue;
 
             var familia = _bll.CargarFamiliaConComponentes_593CM(idFamilia);
+
             lstAsignadosF.Items.Clear();
             if (familia != null)
                 foreach (var comp in familia.Componentes_593CM)
@@ -88,7 +103,7 @@ namespace DIEFER.UI
         private void btnAgregarF_Click(object sender, EventArgs e)
         {
             if (cmbFamilias.SelectedValue == null || lstDisponiblesF.SelectedItem == null) return;
-            int idFamilia = (int)cmbFamilias.SelectedValue;
+            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
             var item = ((PermisoItem)lstDisponiblesF.SelectedItem).Permiso;
 
             bool ok;
@@ -108,7 +123,7 @@ namespace DIEFER.UI
         private void btnQuitarF_Click(object sender, EventArgs e)
         {
             if (cmbFamilias.SelectedValue == null || lstAsignadosF.SelectedItem == null) return;
-            int idFamilia = (int)cmbFamilias.SelectedValue;
+            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
             var item = ((PermisoItem)lstAsignadosF.SelectedItem).Permiso;
 
             if (item is Patente_593CM p)
@@ -125,17 +140,15 @@ namespace DIEFER.UI
                 "Nombre de la nueva familia:", "Nueva Familia", string.Empty);
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
-            if (!_bll.CrearFamilia_593CM(nombre.Trim()))
+            int nuevoId = _bll.CrearFamilia_593CM(nombre.Trim());
+            if (nuevoId < 0)
             {
                 MessageBox.Show("No se pudo crear la familia.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             CargarComboFamilias();
-            // Seleccionar la recién creada
-            var nueva = ((List<Familia_593CM>)cmbFamilias.DataSource)
-                        .FirstOrDefault(f => f.Nombre_593CM == nombre.Trim());
-            if (nueva != null) cmbFamilias.SelectedValue = nueva.ID_familia_593CM;
+            cmbFamilias.SelectedValue = nuevoId;
         }
 
         // ── Rol tab ───────────────────────────────────────────────────────────────────
@@ -147,7 +160,8 @@ namespace DIEFER.UI
 
         private void RefrescarListasRoles()
         {
-            if (cmbRoles.SelectedValue == null) return;
+            if (!(cmbRoles.SelectedValue is int)) return;
+
             int idRol = (int)cmbRoles.SelectedValue;
 
             lstAsignadosR.Items.Clear();
@@ -162,7 +176,7 @@ namespace DIEFER.UI
         private void btnAgregarR_Click(object sender, EventArgs e)
         {
             if (cmbRoles.SelectedValue == null || lstDisponiblesR.SelectedItem == null) return;
-            int idRol = (int)cmbRoles.SelectedValue;
+            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
             var item  = ((PermisoItem)lstDisponiblesR.SelectedItem).Permiso;
 
             bool ok;
@@ -182,7 +196,7 @@ namespace DIEFER.UI
         private void btnQuitarR_Click(object sender, EventArgs e)
         {
             if (cmbRoles.SelectedValue == null || lstAsignadosR.SelectedItem == null) return;
-            int idRol = (int)cmbRoles.SelectedValue;
+            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
             var item  = ((PermisoItem)lstAsignadosR.SelectedItem).Permiso;
 
             if (item is Patente_593CM p)
@@ -191,6 +205,23 @@ namespace DIEFER.UI
                 _bll.QuitarFamiliaDeRol_593CM(idRol, f.ID_familia_593CM);
 
             RefrescarListasRoles();
+        }
+
+        private void btnNuevoRol_Click(object sender, EventArgs e)
+        {
+            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nombre del nuevo rol:", "Nuevo Rol", string.Empty);
+            if (string.IsNullOrWhiteSpace(nombre)) return;
+
+            int nuevoId = _rolBLL.CrearRol_593CM(nombre.Trim());
+            if (nuevoId < 0)
+            {
+                MessageBox.Show("No se pudo crear el rol.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            CargarComboRoles();
+            cmbRoles.SelectedValue = nuevoId;
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
     public class Rol_593CM
     {

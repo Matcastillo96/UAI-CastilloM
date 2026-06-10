@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using DIEFER.BE;
 using DIEFER.Servicios;
 
 namespace DIEFER.DAL

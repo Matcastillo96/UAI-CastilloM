@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
     // Component del patrón Composite.
     public interface IPermiso_593CM

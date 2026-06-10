@@ -1,4 +1,4 @@
-namespace DIEFER.BE
+namespace DIEFER.Servicios
 {
     // Catálogos estáticos del dominio DIEFER.
     public static class Catalogos_593CM
