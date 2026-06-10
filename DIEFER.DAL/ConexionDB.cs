@@ -3,7 +3,11 @@ using System.Data.SqlClient;
 
 namespace DIEFER.DAL
 {
-    // Proveedor central de conexiones SQL y parámetros de configuración de la aplicación.
+    /// <summary>
+    /// Proveedor central de conexiones SQL y parámetros de configuración.
+    /// Los valores se resuelven con prioridad: inicialización programática
+    /// (<see cref="Inicializar_593CM"/>) → App.config → excepción.
+    /// </summary>
     public static class ConexionDB_593CM
     {
         private static string _connectionString_593CM;

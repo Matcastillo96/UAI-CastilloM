@@ -1,10 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 using DIEFER.DAL;
 using DIEFER.Servicios;
 
 namespace DIEFER.BLL
 {
+    /// <summary>
+    /// Capa de negocio para la gestión de perfiles (patrón Composite):
+    /// composición de Familias (composite) y Patentes (leaf), y su
+    /// asignación a Roles. Garantiza las invariantes del modelo:
+    /// ausencia de ciclos en el grafo de familias y no-duplicación
+    /// de permisos efectivos.
+    /// </summary>
     public class PerfilesBLL_593CM
     {
         private readonly IFamilia_593CM    _familiaDAL_593CM;
@@ -14,6 +22,7 @@ namespace DIEFER.BLL
         public PerfilesBLL_593CM()
             : this(new FamiliaDAL_593CM(), new PatenteDAL_593CM(), new RolPermisoDAL_593CM()) { }
 
+        /// <summary>Constructor para inyección de dependencias (testing).</summary>
         public PerfilesBLL_593CM(IFamilia_593CM familiaDAL, IPatente_593CM patenteDAL,
                                   IRolPermiso_593CM rolPermisoDAL)
         {
@@ -24,14 +33,17 @@ namespace DIEFER.BLL
 
         // ── Consultas Familia ────────────────────────────────────────────────────────
 
+        /// <summary>Lista todas las familias registradas, sin sus componentes.</summary>
         public List<Familia_593CM> ListarFamilias_593CM() =>
             _familiaDAL_593CM.ListarTodas_593CM();
 
+        /// <summary>Carga una familia con sus componentes directos (un nivel).</summary>
         public Familia_593CM CargarFamiliaConComponentes_593CM(int idFamilia) =>
             _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
 
         // ── Consultas Rol ────────────────────────────────────────────────────────────
 
+        /// <summary>Componentes (familias y patentes) asignados directamente a un rol.</summary>
         public List<IPermiso_593CM> ObtenerComponentesDeRol_593CM(int idRol)
         {
             var resultado = new List<IPermiso_593CM>();
@@ -42,8 +54,10 @@ namespace DIEFER.BLL
             return resultado;
         }
 
-        // ── Permisos efectivos de un Rol ─────────────────────────────────────────────
-
+        /// <summary>
+        /// Cadenas de permiso efectivas de un rol: las de sus patentes directas
+        /// más las alcanzables transitivamente a través de sus familias.
+        /// </summary>
         public HashSet<string> GetPermisosEfectivosDeRol_593CM(int idRol)
         {
             var resultado = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
@@ -65,6 +79,11 @@ namespace DIEFER.BLL
 
         // ── Disponibles para Familia ─────────────────────────────────────────────────
 
+        /// <summary>
+        /// Ítems asignables a una familia. Excluye: la propia familia, componentes
+        /// ya asignados directamente, familias que generarían un ciclo y familias
+        /// cuyas patentes efectivas ya están todas cubiertas.
+        /// </summary>
         public List<IPermiso_593CM> GetDisponiblesParaFamilia_593CM(int idFamilia)
         {
             var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
@@ -103,6 +122,10 @@ namespace DIEFER.BLL
 
         // ── Disponibles para Rol ─────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Ítems asignables a un rol. Excluye componentes ya asignados directamente
+        /// y familias cuyas patentes efectivas ya están todas cubiertas en el rol.
+        /// </summary>
         public List<IPermiso_593CM> GetDisponiblesParaRol_593CM(int idRol)
         {
             var grafo       = _familiaDAL_593CM.CargarGrafo_593CM();
@@ -137,6 +160,7 @@ namespace DIEFER.BLL
 
         // ── Asignación Familia ────────────────────────────────────────────────────────
 
+        /// <summary>Agrega una patente a una familia si no está ya asignada directamente.</summary>
         public bool AgregarPatenteAFamilia_593CM(int idFamilia, int idPatente)
         {
             var familia = _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
@@ -146,6 +170,11 @@ namespace DIEFER.BLL
             return _familiaDAL_593CM.AgregarPatente_593CM(idFamilia, idPatente);
         }
 
+        /// <summary>
+        /// Agrega una sub-familia validando que no se genere un ciclo, y quita
+        /// las patentes directas del padre que la sub-familia ya cubre.
+        /// La operación completa es atómica (transacción).
+        /// </summary>
         public bool AgregarSubFamiliaAFamilia_593CM(int idFamiliaPadre, int idFamiliaHija)
         {
             if (idFamiliaPadre == idFamiliaHija) return false;
@@ -157,13 +186,18 @@ namespace DIEFER.BLL
             var patentesDirectasPadre = familiaPadre.Componentes_593CM
                 .OfType<Patente_593CM>().ToList();
 
-            if (!_familiaDAL_593CM.AgregarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija)) return false;
+            using (var scope = new TransactionScope())
+            {
+                if (!_familiaDAL_593CM.AgregarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija))
+                    return false;
 
-            var idsHija = BfsPatentes_593CM(idFamiliaHija, grafo);
-            foreach (var p in patentesDirectasPadre)
-                if (idsHija.Contains(p.ID_patente_593CM))
-                    _familiaDAL_593CM.QuitarPatente_593CM(idFamiliaPadre, p.ID_patente_593CM);
+                var idsHija = BfsPatentes_593CM(idFamiliaHija, grafo);
+                foreach (var p in patentesDirectasPadre)
+                    if (idsHija.Contains(p.ID_patente_593CM))
+                        _familiaDAL_593CM.QuitarPatente_593CM(idFamiliaPadre, p.ID_patente_593CM);
 
+                scope.Complete();
+            }
             return true;
         }
 
@@ -173,12 +207,13 @@ namespace DIEFER.BLL
         public bool QuitarSubFamiliaDeFamilia_593CM(int idFamiliaPadre, int idFamiliaHija) =>
             _familiaDAL_593CM.QuitarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija);
 
-        // Retorna el ID de la nueva familia, o -1 si falla.
+        /// <summary>Crea una familia. Retorna el ID generado, o -1 si falla.</summary>
         public int CrearFamilia_593CM(string nombre) =>
             _familiaDAL_593CM.Crear_593CM(nombre);
 
         // ── Asignación Rol ────────────────────────────────────────────────────────────
 
+        /// <summary>Agrega una patente a un rol si no está ya asignada directamente.</summary>
         public bool AgregarPatenteARol_593CM(int idRol, int idPatente)
         {
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
@@ -186,6 +221,10 @@ namespace DIEFER.BLL
             return _rolPermisoDAL_593CM.AgregarPatente_593CM(idRol, idPatente);
         }
 
+        /// <summary>
+        /// Agrega una familia a un rol y quita las patentes directas del rol
+        /// que la familia ya cubre. La operación completa es atómica (transacción).
+        /// </summary>
         public bool AgregarFamiliaARol_593CM(int idRol, int idFamilia)
         {
             var familiasDir = _rolPermisoDAL_593CM.ObtenerFamiliasDirectas_593CM(idRol);
@@ -194,13 +233,18 @@ namespace DIEFER.BLL
             var grafo       = _familiaDAL_593CM.CargarGrafo_593CM();
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
 
-            if (!_rolPermisoDAL_593CM.AgregarFamilia_593CM(idRol, idFamilia)) return false;
+            using (var scope = new TransactionScope())
+            {
+                if (!_rolPermisoDAL_593CM.AgregarFamilia_593CM(idRol, idFamilia))
+                    return false;
 
-            var idsNuevas = BfsPatentes_593CM(idFamilia, grafo);
-            foreach (var p in patentesDir)
-                if (idsNuevas.Contains(p.ID_patente_593CM))
-                    _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, p.ID_patente_593CM);
+                var idsNuevas = BfsPatentes_593CM(idFamilia, grafo);
+                foreach (var p in patentesDir)
+                    if (idsNuevas.Contains(p.ID_patente_593CM))
+                        _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, p.ID_patente_593CM);
 
+                scope.Complete();
+            }
             return true;
         }
 
@@ -212,7 +256,10 @@ namespace DIEFER.BLL
 
         // ── Helpers internos ─────────────────────────────────────────────────────────
 
-        // BFS en memoria sobre el grafo precargado: retorna todos los IDs de patentes alcanzables.
+        /// <summary>
+        /// BFS en memoria sobre el grafo precargado: retorna todos los IDs de
+        /// patentes alcanzables desde la familia indicada.
+        /// </summary>
         private static HashSet<int> BfsPatentes_593CM(int idFamilia, GrafoFamilias_593CM grafo)
         {
             var resultado = new HashSet<int>();
@@ -225,10 +272,10 @@ namespace DIEFER.BLL
                 int actual = cola.Dequeue();
                 if (!visitados.Add(actual)) continue;
 
-                foreach (var idP in grafo.GetPatentes(actual))
+                foreach (var idP in grafo.GetPatentes_593CM(actual))
                     resultado.Add(idP);
 
-                foreach (var idH in grafo.GetHijas(actual))
+                foreach (var idH in grafo.GetHijas_593CM(actual))
                     if (!visitados.Contains(idH))
                         cola.Enqueue(idH);
             }
@@ -236,12 +283,14 @@ namespace DIEFER.BLL
             return resultado;
         }
 
+        /// <summary>Verifica en ambas direcciones si vincular padre→hija generaría un ciclo.</summary>
         private static bool CreariaCirculo_593CM(int idPadre, int idHija, GrafoFamilias_593CM grafo)
         {
             return DesciendeDe_593CM(idPadre, idHija, grafo)
                 || DesciendeDe_593CM(idHija, idPadre, grafo);
         }
 
+        /// <summary>BFS: true si idFamilia desciende (directa o transitivamente) de idAncestro.</summary>
         private static bool DesciendeDe_593CM(int idFamilia, int idAncestro, GrafoFamilias_593CM grafo)
         {
             var visitados = new HashSet<int>();
@@ -254,7 +303,7 @@ namespace DIEFER.BLL
                 if (!visitados.Add(actual)) continue;
                 if (actual == idAncestro) return true;
 
-                foreach (var hijo in grafo.GetHijas(actual))
+                foreach (var hijo in grafo.GetHijas_593CM(actual))
                     if (!visitados.Contains(hijo))
                         cola.Enqueue(hijo);
             }

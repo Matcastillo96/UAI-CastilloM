@@ -1,7 +1,10 @@
 namespace DIEFER.Servicios
 {
-    // Singleton — única instancia durante toda la sesión activa.
-    // Constructor privado; acceso exclusivo por GetInstancia_593CM().
+    /// <summary>
+    /// Patrón Singleton (thread-safe, double-checked locking): única instancia
+    /// que mantiene el estado de la sesión activa durante toda la ejecución.
+    /// Constructor privado; acceso exclusivo por <see cref="GetInstancia_593CM"/>.
+    /// </summary>
     public sealed class SessionManager_593CM
     {
         private static volatile SessionManager_593CM _instancia_593CM;

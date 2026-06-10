@@ -110,23 +110,13 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
                 using (var cmd = new SqlCommand(sqlFF, conn))
                 using (var r = cmd.ExecuteReader())
                     while (r.Read())
-                    {
-                        int padre = r.GetInt32(0), hija = r.GetInt32(1);
-                        if (!grafo.HijasDe.ContainsKey(padre))
-                            grafo.HijasDe[padre] = new System.Collections.Generic.List<int>();
-                        grafo.HijasDe[padre].Add(hija);
-                    }
+                        grafo.AgregarHija_593CM(r.GetInt32(0), r.GetInt32(1));
 
                 const string sqlFP = "SELECT ID_familia, ID_patente FROM Familia_Patente";
                 using (var cmd = new SqlCommand(sqlFP, conn))
                 using (var r = cmd.ExecuteReader())
                     while (r.Read())
-                    {
-                        int fam = r.GetInt32(0), pat = r.GetInt32(1);
-                        if (!grafo.PatentesDe.ContainsKey(fam))
-                            grafo.PatentesDe[fam] = new System.Collections.Generic.List<int>();
-                        grafo.PatentesDe[fam].Add(pat);
-                    }
+                        grafo.AgregarPatente_593CM(r.GetInt32(0), r.GetInt32(1));
             }
             return grafo;
         }
