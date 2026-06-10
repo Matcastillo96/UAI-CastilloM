@@ -4,7 +4,7 @@ namespace DIEFER.Servicios
     // Constructor privado; acceso exclusivo por GetInstancia_593CM().
     public sealed class SessionManager_593CM
     {
-        private static SessionManager_593CM _instancia_593CM;
+        private static volatile SessionManager_593CM _instancia_593CM;
         private static readonly object _lock_593CM = new object();
 
         private SessionManager_593CM() { }

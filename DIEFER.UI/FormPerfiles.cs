@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 using DIEFER.BLL;
 using DIEFER.Servicios;
@@ -85,11 +84,9 @@ namespace DIEFER.UI
 
         private void RefrescarListasFamilias()
         {
-            if (cmbFamilias.SelectedValue == null) return;
+            if (!(cmbFamilias.SelectedValue is int)) return;
 
-            if (cmbFamilias.SelectedValue is Familia_593CM) return;
-
-            int idFamilia = Convert.ToInt32(cmbFamilias.SelectedValue);
+            int idFamilia = (int)cmbFamilias.SelectedValue;
 
             var familia = _bll.CargarFamiliaConComponentes_593CM(idFamilia);
 
@@ -143,17 +140,15 @@ namespace DIEFER.UI
                 "Nombre de la nueva familia:", "Nueva Familia", string.Empty);
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
-            if (!_bll.CrearFamilia_593CM(nombre.Trim()))
+            int nuevoId = _bll.CrearFamilia_593CM(nombre.Trim());
+            if (nuevoId < 0)
             {
                 MessageBox.Show("No se pudo crear la familia.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             CargarComboFamilias();
-            // Seleccionar la recién creada
-            var nueva = ((List<Familia_593CM>)cmbFamilias.DataSource)
-                        .FirstOrDefault(f => f.Nombre_593CM == nombre.Trim());
-            if (nueva != null) cmbFamilias.SelectedValue = nueva.ID_familia_593CM;
+            cmbFamilias.SelectedValue = nuevoId;
         }
 
         // ── Rol tab ───────────────────────────────────────────────────────────────────
@@ -165,11 +160,9 @@ namespace DIEFER.UI
 
         private void RefrescarListasRoles()
         {
-            if (cmbRoles.SelectedValue == null) return;
+            if (!(cmbRoles.SelectedValue is int)) return;
 
-            if (cmbRoles.SelectedValue is Rol_593CM) return;
-
-            int idRol = Convert.ToInt32(cmbRoles.SelectedValue);
+            int idRol = (int)cmbRoles.SelectedValue;
 
             lstAsignadosR.Items.Clear();
             foreach (var comp in _bll.ObtenerComponentesDeRol_593CM(idRol))
@@ -220,17 +213,15 @@ namespace DIEFER.UI
                 "Nombre del nuevo rol:", "Nuevo Rol", string.Empty);
             if (string.IsNullOrWhiteSpace(nombre)) return;
 
-            if (!_rolBLL.CrearRol_593CM(nombre.Trim()))
+            int nuevoId = _rolBLL.CrearRol_593CM(nombre.Trim());
+            if (nuevoId < 0)
             {
                 MessageBox.Show("No se pudo crear el rol.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
             CargarComboRoles();
-            // Seleccionar el recién creado
-            var nuevo = ((List<Rol_593CM>)cmbRoles.DataSource)
-                        .FirstOrDefault(r => r.Nombre_593CM == nombre.Trim());
-            if (nuevo != null) cmbRoles.SelectedValue = nuevo.ID_593CM;
+            cmbRoles.SelectedValue = nuevoId;
         }
     }
 }

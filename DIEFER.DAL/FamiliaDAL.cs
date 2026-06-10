@@ -33,7 +33,6 @@ namespace DIEFER.DAL
             {
                 conn.Open();
 
-                // Cargar cabecera
                 using (var cmd = new SqlCommand("SELECT ID_familia, Nombre FROM Familia WHERE ID_familia=@ID", conn))
                 {
                     cmd.Parameters.AddWithValue("@ID", idFamilia);
@@ -47,7 +46,6 @@ namespace DIEFER.DAL
 
                 if (familia == null) return null;
 
-                // Cargar patentes directas
                 const string sqlPat = @"
 SELECT P.ID_patente, P.Nombre, P.Permiso
 FROM Familia_Patente FP INNER JOIN Patente P ON FP.ID_patente = P.ID_patente
@@ -64,7 +62,6 @@ WHERE FP.ID_familia = @ID ORDER BY P.Nombre";
                             });
                 }
 
-                // Cargar sub-familias directas (shallow — sin sus propios hijos)
                 const string sqlFam = @"
 SELECT F.ID_familia, F.Nombre
 FROM Familia_Familia FF INNER JOIN Familia F ON FF.ID_familiaHija = F.ID_familia
@@ -101,41 +98,76 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
             return ids;
         }
 
-        public bool Crear_593CM(string nombre)
+        // Carga el grafo completo familia→hijas y familia→patentes en 2 queries.
+        public GrafoFamilias_593CM CargarGrafo_593CM()
         {
-            const string sql = "INSERT INTO Familia (Nombre) VALUES (@Nombre)";
+            var grafo = new GrafoFamilias_593CM();
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+            {
+                conn.Open();
+
+                const string sqlFF = "SELECT ID_familiaPadre, ID_familiaHija FROM Familia_Familia";
+                using (var cmd = new SqlCommand(sqlFF, conn))
+                using (var r = cmd.ExecuteReader())
+                    while (r.Read())
+                    {
+                        int padre = r.GetInt32(0), hija = r.GetInt32(1);
+                        if (!grafo.HijasDe.ContainsKey(padre))
+                            grafo.HijasDe[padre] = new System.Collections.Generic.List<int>();
+                        grafo.HijasDe[padre].Add(hija);
+                    }
+
+                const string sqlFP = "SELECT ID_familia, ID_patente FROM Familia_Patente";
+                using (var cmd = new SqlCommand(sqlFP, conn))
+                using (var r = cmd.ExecuteReader())
+                    while (r.Read())
+                    {
+                        int fam = r.GetInt32(0), pat = r.GetInt32(1);
+                        if (!grafo.PatentesDe.ContainsKey(fam))
+                            grafo.PatentesDe[fam] = new System.Collections.Generic.List<int>();
+                        grafo.PatentesDe[fam].Add(pat);
+                    }
+            }
+            return grafo;
+        }
+
+        // Crea una familia y retorna el nuevo ID, o -1 si falla.
+        public int Crear_593CM(string nombre)
+        {
+            const string sql = "INSERT INTO Familia (Nombre) OUTPUT INSERTED.ID_familia VALUES (@Nombre)";
             using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
             {
                 conn.Open();
                 using (var cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@Nombre", nombre);
-                    return cmd.ExecuteNonQuery() > 0;
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? (int)result : -1;
                 }
             }
         }
 
         public bool AgregarPatente_593CM(int idFamilia, int idPatente)
         {
-            const string sql = "INSERT INTO Familia_Patente (ID_familia, ID_patente) VALUES (@F, @P)";
+            const string sql = "INSERT INTO Familia_Patente (ID_familia, ID_patente) VALUES (@ID1, @ID2)";
             return Ejecutar_593CM(sql, idFamilia, idPatente);
         }
 
         public bool AgregarSubFamilia_593CM(int idFamiliaPadre, int idFamiliaHija)
         {
-            const string sql = "INSERT INTO Familia_Familia (ID_familiaPadre, ID_familiaHija) VALUES (@F, @P)";
+            const string sql = "INSERT INTO Familia_Familia (ID_familiaPadre, ID_familiaHija) VALUES (@ID1, @ID2)";
             return Ejecutar_593CM(sql, idFamiliaPadre, idFamiliaHija);
         }
 
         public bool QuitarPatente_593CM(int idFamilia, int idPatente)
         {
-            const string sql = "DELETE FROM Familia_Patente WHERE ID_familia=@F AND ID_patente=@P";
+            const string sql = "DELETE FROM Familia_Patente WHERE ID_familia=@ID1 AND ID_patente=@ID2";
             return Ejecutar_593CM(sql, idFamilia, idPatente);
         }
 
         public bool QuitarSubFamilia_593CM(int idFamiliaPadre, int idFamiliaHija)
         {
-            const string sql = "DELETE FROM Familia_Familia WHERE ID_familiaPadre=@F AND ID_familiaHija=@P";
+            const string sql = "DELETE FROM Familia_Familia WHERE ID_familiaPadre=@ID1 AND ID_familiaHija=@ID2";
             return Ejecutar_593CM(sql, idFamiliaPadre, idFamiliaHija);
         }
 
@@ -146,8 +178,8 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
                 conn.Open();
                 using (var cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@F", param1);
-                    cmd.Parameters.AddWithValue("@P", param2);
+                    cmd.Parameters.AddWithValue("@ID1", param1);
+                    cmd.Parameters.AddWithValue("@ID2", param2);
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
