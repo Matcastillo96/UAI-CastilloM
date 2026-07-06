@@ -8,9 +8,9 @@ namespace DIEFER.BLL
 {
     public class UsuarioBLL_593CM
     {
-        private readonly IUsuario_593CM  _usuarioDAL_593CM;
+        private readonly IUsuarioDAL_593CM _usuarioDAL_593CM;
         private readonly EventoBLL_593CM _eventoBLL_593CM;
-        private readonly RolBLL_593CM    _rolBLL_593CM;
+        private readonly RolBLL_593CM _rolBLL_593CM;
 
         private static readonly Dictionary<string, int> _intentosFallidos_593CM =
             new Dictionary<string, int>();
@@ -18,11 +18,11 @@ namespace DIEFER.BLL
 
         public UsuarioBLL_593CM() : this(new UsuarioDAL_593CM(), new EventoBLL_593CM()) { }
 
-        public UsuarioBLL_593CM(IUsuario_593CM usuarioDAL, EventoBLL_593CM eventoBLL)
+        public UsuarioBLL_593CM(IUsuarioDAL_593CM usuarioDAL, EventoBLL_593CM eventoBLL)
         {
             _usuarioDAL_593CM = usuarioDAL;
-            _eventoBLL_593CM  = eventoBLL;
-            _rolBLL_593CM     = new RolBLL_593CM();
+            _eventoBLL_593CM = eventoBLL;
+            _rolBLL_593CM = new RolBLL_593CM();
         }
 
         // ── Autenticación ───────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ namespace DIEFER.BLL
             if (_usuarioDAL_593CM.ExisteDNI_593CM(dni))
                 return ResultadoCrear_593CM.DNIExistente;
 
-            string login    = $"{nombre.Trim()}.{apellidos.Trim()}";
+            string login = $"{nombre.Trim()}.{apellidos.Trim()}";
             string passHash = CriptoService_593CM.HashSHA256_593CM($"{dni}{apellidos.Trim()}");
 
             if (_usuarioDAL_593CM.ExisteLogin_593CM(login))
@@ -118,16 +118,16 @@ namespace DIEFER.BLL
 
             var u = new Usuario_593CM
             {
-                DNI_593CM       = dni.Trim(),
+                DNI_593CM = dni.Trim(),
                 Apellidos_593CM = apellidos.Trim(),
-                Nombre_593CM    = nombre.Trim(),
-                Login_593CM     = login,
-                Password_593CM  = passHash,
-                ID_rol_593CM    = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
-                Rol_593CM       = rol,
-                Email_593CM     = email.Trim(),
+                Nombre_593CM = nombre.Trim(),
+                Login_593CM = login,
+                Password_593CM = passHash,
+                ID_rol_593CM = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
+                Rol_593CM = rol,
+                Email_593CM = email.Trim(),
                 Bloqueado_593CM = false,
-                Activo_593CM    = true,
+                Activo_593CM = true,
             };
 
             _usuarioDAL_593CM.Insertar_593CM(u);
@@ -161,13 +161,13 @@ namespace DIEFER.BLL
 
             var u = new Usuario_593CM
             {
-                DNI_593CM       = dni,
+                DNI_593CM = dni,
                 Apellidos_593CM = apellidos.Trim(),
-                Nombre_593CM    = nombre.Trim(),
-                Login_593CM     = nuevoLogin,
-                ID_rol_593CM    = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
-                Rol_593CM       = rol,
-                Email_593CM     = email.Trim(),
+                Nombre_593CM = nombre.Trim(),
+                Login_593CM = nuevoLogin,
+                ID_rol_593CM = _rolBLL_593CM.ObtenerIDPorNombre_593CM(rol),
+                Rol_593CM = rol,
+                Email_593CM = email.Trim(),
             };
 
             _usuarioDAL_593CM.Actualizar_593CM(u);
@@ -303,7 +303,7 @@ namespace DIEFER.BLL
         private static bool CumpleReglasClave_593CM(string clave)
         {
             if (clave.Length < 8) return false;
-            bool tieneNumero    = Regex.IsMatch(clave, @"\d");
+            bool tieneNumero = Regex.IsMatch(clave, @"\d");
             bool tieneMayuscula = Regex.IsMatch(clave, @"[A-Z]");
             return tieneNumero && tieneMayuscula;
         }
@@ -313,5 +313,77 @@ namespace DIEFER.BLL
             var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
             DVService_593CM.ActualizarReferencia_593CM(logins);
         }
+
+        // ── Re-Login ───────────────────────────────────────────────────────────────────
+
+        public enum ResultadoReLogin_593CM
+        {
+            Exitoso,
+            SinSesionActiva,
+            CuentaNoExistente,
+            CuentaInactivaBloqueada,
+            ErrorIntegridad
+        }
+
+        public ResultadoReLogin_593CM ReLogin_593CM(out Usuario_593CM usuarioActualizado)
+        {
+            usuarioActualizado = null;
+
+            var sesion = SessionManager_593CM.GetInstancia_593CM();
+            var usuarioActual = sesion.UsuarioActual_593CM;
+
+            if (usuarioActual == null)
+                return ResultadoReLogin_593CM.SinSesionActiva;
+
+            // Se busca por DNI porque el Login podría haber cambiado
+            // si modificaron Nombre/Apellido del usuario mientras la sesión estaba activa.
+            var usuarioDB = _usuarioDAL_593CM.BuscarPorDNI_593CM(usuarioActual.DNI_593CM);
+
+            if (usuarioDB == null)
+            {
+                _eventoBLL_593CM.Registrar_593CM(
+                    usuarioActual.Login_593CM,
+                    "Usuario",
+                    "Re-Login fallido",
+                    1);
+
+                sesion.Cerrar_593CM();
+                return ResultadoReLogin_593CM.CuentaNoExistente;
+            }
+
+            if (!usuarioDB.Activo_593CM || usuarioDB.Bloqueado_593CM)
+            {
+                _eventoBLL_593CM.Registrar_593CM(
+                    usuarioDB.Login_593CM,
+                    "Usuario",
+                    "Re-Login fallido",
+                    1);
+
+                sesion.Cerrar_593CM();
+                return ResultadoReLogin_593CM.CuentaInactivaBloqueada;
+            }
+
+            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
+            if (!DVService_593CM.VerificarIntegridad_593CM(logins))
+                return ResultadoReLogin_593CM.ErrorIntegridad;
+
+            // Refresca el usuario en memoria con los datos actuales de la DB:
+            // rol, ID_rol, login, email, idioma, estado, etc.
+            sesion.Iniciar_593CM(usuarioDB);
+
+            // Mantiene sincronizado el idioma preferido del usuario actualizado.
+            IdiomaService_593CM.GetInstancia_593CM().CambiarIdioma_593CM(
+                usuarioDB.Idioma_593CM ?? "es");
+
+            _eventoBLL_593CM.Registrar_593CM(
+                usuarioDB.Login_593CM,
+                "Usuario",
+                "Re-Login",
+                1);
+
+            usuarioActualizado = usuarioDB;
+            return ResultadoReLogin_593CM.Exitoso;
+        }
+
     }
 }

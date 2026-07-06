@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using DIEFER.Servicios;
 
-namespace DIEFER.Servicios
+namespace DIEFER.DAL
 {
-    public interface IUsuario_593CM
+    public interface IUsuarioDAL_593CM
     {
         bool ExisteDNI_593CM(string dni);
         bool ExisteLogin_593CM(string login, string dniExcluir = null);

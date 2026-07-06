@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using DIEFER.Servicios;
 
-namespace DIEFER.Servicios
+namespace DIEFER.DAL
 {
     /// <summary>
     /// Contrato de acceso a datos para la entidad Familia (composite del
     /// patrón Composite) y sus relaciones de composición.
     /// </summary>
-    public interface IFamilia_593CM
+    public interface IFamiliaDAL_593CM
     {
         /// <summary>Lista todas las familias, sin componentes.</summary>
         List<Familia_593CM> ListarTodas_593CM();

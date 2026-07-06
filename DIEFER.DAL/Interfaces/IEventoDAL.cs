@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DIEFER.Servicios;
 
-namespace DIEFER.DAL
+namespace DIEFER.DAL.Interfaces
 {
     // Contrato de acceso a datos para la entidad Eventos_593CM (bitácora).
     public interface IEventoDAL_593CM

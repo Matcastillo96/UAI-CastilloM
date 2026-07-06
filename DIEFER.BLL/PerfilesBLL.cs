@@ -15,16 +15,16 @@ namespace DIEFER.BLL
     /// </summary>
     public class PerfilesBLL_593CM
     {
-        private readonly IFamilia_593CM    _familiaDAL_593CM;
-        private readonly IPatente_593CM    _patenteDAL_593CM;
-        private readonly IRolPermiso_593CM _rolPermisoDAL_593CM;
+        private readonly IFamiliaDAL_593CM    _familiaDAL_593CM;
+        private readonly IPatenteDAL_593CM    _patenteDAL_593CM;
+        private readonly IRolPermisoDAL_593CM _rolPermisoDAL_593CM;
 
         public PerfilesBLL_593CM()
             : this(new FamiliaDAL_593CM(), new PatenteDAL_593CM(), new RolPermisoDAL_593CM()) { }
 
         /// <summary>Constructor para inyección de dependencias (testing).</summary>
-        public PerfilesBLL_593CM(IFamilia_593CM familiaDAL, IPatente_593CM patenteDAL,
-                                  IRolPermiso_593CM rolPermisoDAL)
+        public PerfilesBLL_593CM(IFamiliaDAL_593CM familiaDAL, IPatenteDAL_593CM patenteDAL,
+                                  IRolPermisoDAL_593CM rolPermisoDAL)
         {
             _familiaDAL_593CM    = familiaDAL;
             _patenteDAL_593CM    = patenteDAL;
@@ -89,15 +89,16 @@ namespace DIEFER.BLL
             var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
             var familiaActual = _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
 
-            var idsPatentesDir = new HashSet<int>(
-                familiaActual.Componentes_593CM
-                    .OfType<Patente_593CM>().Select(p => p.ID_patente_593CM));
             var idsFamiliasDir = new HashSet<int>(
                 familiaActual.Componentes_593CM
-                    .OfType<Familia_593CM>().Select(f => f.ID_familia_593CM));
+                    .OfType<Familia_593CM>()
+                    .Select(f => f.ID_familia_593CM));
 
+            // Patentes efectivas actuales de la familia:
+            // patentes directas + patentes contenidas en subfamilias.
             var idsEfectivos = BfsPatentes_593CM(idFamilia, grafo);
-            var disponibles  = new List<IPermiso_593CM>();
+
+            var disponibles = new List<IPermiso_593CM>();
 
             foreach (var f in _familiaDAL_593CM.ListarTodas_593CM())
             {
@@ -106,6 +107,8 @@ namespace DIEFER.BLL
                 if (CreariaCirculo_593CM(idFamilia, f.ID_familia_593CM, grafo)) continue;
 
                 var idsNuevas = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+
+                // Si la familia candidata no aporta ninguna patente nueva, no se muestra.
                 if (idsNuevas.Count > 0 && idsNuevas.IsSubsetOf(idsEfectivos)) continue;
 
                 disponibles.Add(f);
@@ -113,7 +116,10 @@ namespace DIEFER.BLL
 
             foreach (var p in _patenteDAL_593CM.ListarTodas_593CM())
             {
-                if (idsPatentesDir.Contains(p.ID_patente_593CM)) continue;
+                // Antes se validaba solo contra patentes directas.
+                // Ahora se valida contra patentes efectivas.
+                if (idsEfectivos.Contains(p.ID_patente_593CM)) continue;
+
                 disponibles.Add(p);
             }
 
@@ -128,14 +134,16 @@ namespace DIEFER.BLL
         /// </summary>
         public List<IPermiso_593CM> GetDisponiblesParaRol_593CM(int idRol)
         {
-            var grafo       = _familiaDAL_593CM.CargarGrafo_593CM();
+            var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
             var familiasDir = _rolPermisoDAL_593CM.ObtenerFamiliasDirectas_593CM(idRol);
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
 
             var idsFamiliasDir = new HashSet<int>(familiasDir.Select(f => f.ID_familia_593CM));
-            var idsPatentesDir = new HashSet<int>(patentesDir.Select(p => p.ID_patente_593CM));
 
-            var idsEfectivos = new HashSet<int>(idsPatentesDir);
+            // Patentes efectivas actuales del rol:
+            // patentes directas + patentes contenidas en familias directas.
+            var idsEfectivos = new HashSet<int>(patentesDir.Select(p => p.ID_patente_593CM));
+
             foreach (var f in familiasDir)
                 idsEfectivos.UnionWith(BfsPatentes_593CM(f.ID_familia_593CM, grafo));
 
@@ -144,14 +152,21 @@ namespace DIEFER.BLL
             foreach (var f in _familiaDAL_593CM.ListarTodas_593CM())
             {
                 if (idsFamiliasDir.Contains(f.ID_familia_593CM)) continue;
+
                 var idsF = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+
+                // Si esta familia no aporta ninguna patente nueva, no se muestra.
                 if (idsF.Count > 0 && idsF.IsSubsetOf(idsEfectivos)) continue;
+
                 disponibles.Add(f);
             }
 
             foreach (var p in _patenteDAL_593CM.ListarTodas_593CM())
             {
-                if (idsPatentesDir.Contains(p.ID_patente_593CM)) continue;
+                // Antes se validaba solo contra patentes directas.
+                // Ahora se valida contra patentes efectivas.
+                if (idsEfectivos.Contains(p.ID_patente_593CM)) continue;
+
                 disponibles.Add(p);
             }
 
@@ -163,10 +178,15 @@ namespace DIEFER.BLL
         /// <summary>Agrega una patente a una familia si no está ya asignada directamente.</summary>
         public bool AgregarPatenteAFamilia_593CM(int idFamilia, int idPatente)
         {
-            var familia = _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
-            bool yaDirecta = familia.Componentes_593CM
-                .OfType<Patente_593CM>().Any(p => p.ID_patente_593CM == idPatente);
-            if (yaDirecta) return false;
+            var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
+
+            // Patentes efectivas actuales de la familia:
+            // directas + las que vienen por subfamilias.
+            var idsEfectivos = BfsPatentes_593CM(idFamilia, grafo);
+
+            // Si ya está cubierta directa o indirectamente, no se agrega.
+            if (idsEfectivos.Contains(idPatente)) return false;
+
             return _familiaDAL_593CM.AgregarPatente_593CM(idFamilia, idPatente);
         }
 
@@ -180,24 +200,53 @@ namespace DIEFER.BLL
             if (idFamiliaPadre == idFamiliaHija) return false;
 
             var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
+
             if (CreariaCirculo_593CM(idFamiliaPadre, idFamiliaHija, grafo)) return false;
 
             var familiaPadre = _familiaDAL_593CM.CargarConComponentes_593CM(idFamiliaPadre);
+
             var patentesDirectasPadre = familiaPadre.Componentes_593CM
-                .OfType<Patente_593CM>().ToList();
+                .OfType<Patente_593CM>()
+                .ToList();
+
+            var familiasDirectasPadre = familiaPadre.Componentes_593CM
+                .OfType<Familia_593CM>()
+                .ToList();
+
+            if (familiasDirectasPadre.Any(f => f.ID_familia_593CM == idFamiliaHija))
+                return false;
+
+            // Patentes que aporta la familia hija nueva.
+            var idsHija = BfsPatentes_593CM(idFamiliaHija, grafo);
 
             using (var scope = new TransactionScope())
             {
                 if (!_familiaDAL_593CM.AgregarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija))
                     return false;
 
-                var idsHija = BfsPatentes_593CM(idFamiliaHija, grafo);
+                // 1) Quita patentes directas del padre que la nueva subfamilia ya cubre.
                 foreach (var p in patentesDirectasPadre)
                     if (idsHija.Contains(p.ID_patente_593CM))
                         _familiaDAL_593CM.QuitarPatente_593CM(idFamiliaPadre, p.ID_patente_593CM);
 
+                // 2) Quita subfamilias directas del padre que quedaron completamente
+                // cubiertas por la nueva subfamilia.
+                foreach (var f in familiasDirectasPadre)
+                {
+                    var idsFamiliaExistente = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+
+                    if (idsFamiliaExistente.Count > 0 &&
+                        idsFamiliaExistente.IsSubsetOf(idsHija))
+                    {
+                        _familiaDAL_593CM.QuitarSubFamilia_593CM(
+                            idFamiliaPadre,
+                            f.ID_familia_593CM);
+                    }
+                }
+
                 scope.Complete();
             }
+
             return true;
         }
 
@@ -216,8 +265,18 @@ namespace DIEFER.BLL
         /// <summary>Agrega una patente a un rol si no está ya asignada directamente.</summary>
         public bool AgregarPatenteARol_593CM(int idRol, int idPatente)
         {
+            var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
+            var familiasDir = _rolPermisoDAL_593CM.ObtenerFamiliasDirectas_593CM(idRol);
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
-            if (patentesDir.Any(p => p.ID_patente_593CM == idPatente)) return false;
+
+            var idsEfectivos = new HashSet<int>(patentesDir.Select(p => p.ID_patente_593CM));
+
+            foreach (var f in familiasDir)
+                idsEfectivos.UnionWith(BfsPatentes_593CM(f.ID_familia_593CM, grafo));
+
+            // Si la patente ya está directa o cubierta por una familia, no se agrega.
+            if (idsEfectivos.Contains(idPatente)) return false;
+
             return _rolPermisoDAL_593CM.AgregarPatente_593CM(idRol, idPatente);
         }
 
@@ -230,21 +289,38 @@ namespace DIEFER.BLL
             var familiasDir = _rolPermisoDAL_593CM.ObtenerFamiliasDirectas_593CM(idRol);
             if (familiasDir.Any(f => f.ID_familia_593CM == idFamilia)) return false;
 
-            var grafo       = _familiaDAL_593CM.CargarGrafo_593CM();
+            var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
+
+            // Patentes que aporta la familia nueva.
+            var idsNuevas = BfsPatentes_593CM(idFamilia, grafo);
 
             using (var scope = new TransactionScope())
             {
                 if (!_rolPermisoDAL_593CM.AgregarFamilia_593CM(idRol, idFamilia))
                     return false;
 
-                var idsNuevas = BfsPatentes_593CM(idFamilia, grafo);
+                // 1) Quita patentes directas que la nueva familia ya cubre.
                 foreach (var p in patentesDir)
                     if (idsNuevas.Contains(p.ID_patente_593CM))
                         _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, p.ID_patente_593CM);
 
+                // 2) Quita familias directas que quedaron completamente cubiertas
+                // por la nueva familia.
+                foreach (var f in familiasDir)
+                {
+                    var idsFamiliaExistente = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+
+                    if (idsFamiliaExistente.Count > 0 &&
+                        idsFamiliaExistente.IsSubsetOf(idsNuevas))
+                    {
+                        _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, f.ID_familia_593CM);
+                    }
+                }
+
                 scope.Complete();
             }
+
             return true;
         }
 

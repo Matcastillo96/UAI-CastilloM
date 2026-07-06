@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using DIEFER.Servicios;
 
-namespace DIEFER.Servicios
+namespace DIEFER.DAL
 {
     /// <summary>
     /// Contrato de acceso a datos para la asignación de permisos
     /// (familias y patentes) a roles.
     /// </summary>
-    public interface IRolPermiso_593CM
+    public interface IRolPermisoDAL_593CM
     {
         /// <summary>Patentes asignadas directamente al rol (no incluye las heredadas via familias).</summary>
         List<Patente_593CM> ObtenerPatentesDirectas_593CM(int idRol);

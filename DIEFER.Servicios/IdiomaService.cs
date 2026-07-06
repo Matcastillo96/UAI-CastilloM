@@ -88,9 +88,20 @@ namespace DIEFER.Servicios
 
         public void Suscribir_593CM(IIdiomaObserver_593CM observer)
         {
+            if (observer == null) return;
+
             lock (_observersLock)
+            {
                 if (!_observers.Contains(observer))
                     _observers.Add(observer);
+            }
+
+            // Importante:
+            // al suscribirse, el observer recibe inmediatamente el idioma actual.
+            // Esto corrige el caso en que el idioma fue cambiado antes de que
+            // el formulario se suscriba, como ocurre después del login.
+            if (_idiomas.TryGetValue(_codigoActual, out var info))
+                observer.OnIdiomaChanged_593CM(_codigoActual, info.Textos);
         }
 
         public void Desuscribir_593CM(IIdiomaObserver_593CM observer)
