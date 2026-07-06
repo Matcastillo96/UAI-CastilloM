@@ -9,11 +9,7 @@ namespace DIEFER.UI
     // Formulario MDI principal — contenedor de todos los módulos de DIEFER.
     public partial class FormPrincipal_593CM : Form, IIdiomaObserver_593CM
     {
-<<<<<<< HEAD
         private readonly UsuarioBLL_593CM _usuarioCtrl_593CM;
-=======
-        private readonly UsuarioBLL_593CM  _usuarioCtrl_593CM;
->>>>>>> origin/dev
         private readonly PerfilesBLL_593CM _perfilesBLL_593CM;
 
         public FormPrincipal_593CM()
@@ -91,7 +87,6 @@ namespace DIEFER.UI
 
             // Consume los permisos definidos en la DB para el rol del usuario.
             var permisos = _perfilesBLL_593CM.GetPermisosEfectivosDeRol_593CM(u.ID_rol_593CM);
-<<<<<<< HEAD
 
             mnuAdminUsuarios_593CM.Enabled = permisos.Contains("USUARIO_ABM");
             mnuAdminBitacora_593CM.Enabled = permisos.Contains("BITACORA_GESTIONAR");
@@ -112,16 +107,6 @@ namespace DIEFER.UI
             mnuCompras_593CM.Visible = mnuCompras_593CM.Enabled;
 
             mnuReportes_593CM.Visible = mnuReportes_593CM.Enabled;
-
-=======
-
-            mnuAdminUsuarios_593CM.Enabled = permisos.Contains("admin.usuarios");
-            mnuAdminBitacora_593CM.Enabled = permisos.Contains("admin.bitacora");
-            mnuAdminPerfiles_593CM.Enabled = permisos.Contains("admin.perfiles");
-            mnuAdmin_593CM.Visible = mnuAdminUsuarios_593CM.Enabled
-                                  || mnuAdminBitacora_593CM.Enabled
-                                  || mnuAdminPerfiles_593CM.Enabled;
->>>>>>> origin/dev
         }
 
         // ── ADMIN → Usuarios ────────────────────────────────────────────────────────────

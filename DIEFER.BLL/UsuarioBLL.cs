@@ -1,8 +1,9 @@
+using DIEFER.DAL;
+using DIEFER.DAL.Interfaces;
+using DIEFER.Servicios;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using DIEFER.DAL;
-using DIEFER.Servicios;
 
 namespace DIEFER.BLL
 {

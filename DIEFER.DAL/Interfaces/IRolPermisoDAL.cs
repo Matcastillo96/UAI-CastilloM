@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-<<<<<<<< HEAD:DIEFER.DAL/Interfaces/IRolPermisoDAL.cs
 using DIEFER.Servicios;
-========
->>>>>>>> origin/dev:DIEFER.Servicios/Interfaces/IRolPermiso.cs
 
-namespace DIEFER.DAL
+namespace DIEFER.DAL.Interfaces
 {
     /// <summary>
     /// Contrato de acceso a datos para la asignación de permisos
@@ -12,7 +9,7 @@ namespace DIEFER.DAL
     /// </summary>
     public interface IRolPermisoDAL_593CM
     {
-        /// <summary>Patentes asignadas directamente al rol (no incluye las heredadas via familias).</summary>
+        /// <summary>Patentes asignadas directamente al rol (no incluye las heredadas vía familias).</summary>
         List<Patente_593CM> ObtenerPatentesDirectas_593CM(int idRol);
 
         /// <summary>Familias asignadas directamente al rol.</summary>
