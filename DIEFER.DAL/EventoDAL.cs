@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+<<<<<<< HEAD
 using DIEFER.DAL.Interfaces;
+=======
+>>>>>>> origin/dev
 using DIEFER.Servicios;
 
 namespace DIEFER.DAL

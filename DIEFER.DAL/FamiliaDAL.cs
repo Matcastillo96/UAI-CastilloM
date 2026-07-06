@@ -34,6 +34,11 @@ namespace DIEFER.DAL
 
             using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
             {
+<<<<<<< HEAD
+=======
+                conn.Open();
+
+>>>>>>> origin/dev
                 using (var cmd = new SqlCommand("SELECT ID_familia, Nombre FROM Familia WHERE ID_familia=@ID", conn))
                 {
                     cmd.Parameters.AddWithValue("@ID", idFamilia);
@@ -123,19 +128,66 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
             return ids;
         }
 
+<<<<<<< HEAD
         public GrafoFamilias_593CM CargarGrafo_593CM()
         {
             var grafo = new GrafoFamilias_593CM();
 
             using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+=======
+        // Carga el grafo completo familia→hijas y familia→patentes en 2 queries.
+        public GrafoFamilias_593CM CargarGrafo_593CM()
+        {
+            var grafo = new GrafoFamilias_593CM();
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+            {
+                conn.Open();
+
+                const string sqlFF = "SELECT ID_familiaPadre, ID_familiaHija FROM Familia_Familia";
+                using (var cmd = new SqlCommand(sqlFF, conn))
+                using (var r = cmd.ExecuteReader())
+                    while (r.Read())
+                    {
+                        int padre = r.GetInt32(0), hija = r.GetInt32(1);
+                        if (!grafo.HijasDe.ContainsKey(padre))
+                            grafo.HijasDe[padre] = new System.Collections.Generic.List<int>();
+                        grafo.HijasDe[padre].Add(hija);
+                    }
+
+                const string sqlFP = "SELECT ID_familia, ID_patente FROM Familia_Patente";
+                using (var cmd = new SqlCommand(sqlFP, conn))
+                using (var r = cmd.ExecuteReader())
+                    while (r.Read())
+                    {
+                        int fam = r.GetInt32(0), pat = r.GetInt32(1);
+                        if (!grafo.PatentesDe.ContainsKey(fam))
+                            grafo.PatentesDe[fam] = new System.Collections.Generic.List<int>();
+                        grafo.PatentesDe[fam].Add(pat);
+                    }
+            }
+            return grafo;
+        }
+
+        // Crea una familia y retorna el nuevo ID, o -1 si falla.
+        public int Crear_593CM(string nombre)
+        {
+            const string sql = "INSERT INTO Familia (Nombre) OUTPUT INSERTED.ID_familia VALUES (@Nombre)";
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+>>>>>>> origin/dev
             {
                 const string sqlFF = "SELECT ID_familiaPadre, ID_familiaHija FROM Familia_Familia";
 
                 using (var cmd = new SqlCommand(sqlFF, conn))
                 using (var r = cmd.ExecuteReader())
                 {
+<<<<<<< HEAD
                     while (r.Read())
                         grafo.AgregarHija_593CM(r.GetInt32(0), r.GetInt32(1));
+=======
+                    cmd.Parameters.AddWithValue("@Nombre", nombre);
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? (int)result : -1;
+>>>>>>> origin/dev
                 }
 
                 const string sqlFP = "SELECT ID_familia, ID_patente FROM Familia_Patente";
@@ -194,10 +246,20 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
             using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
             using (var cmd = new SqlCommand(sql, conn))
             {
+<<<<<<< HEAD
                 cmd.Parameters.AddWithValue("@ID1", param1);
                 cmd.Parameters.AddWithValue("@ID2", param2);
 
                 return cmd.ExecuteNonQuery() > 0;
+=======
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ID1", param1);
+                    cmd.Parameters.AddWithValue("@ID2", param2);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+>>>>>>> origin/dev
             }
         }
     }

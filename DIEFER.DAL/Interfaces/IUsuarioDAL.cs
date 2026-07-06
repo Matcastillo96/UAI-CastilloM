@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+<<<<<<<< HEAD:DIEFER.DAL/Interfaces/IUsuarioDAL.cs
 using DIEFER.Servicios;
+========
+>>>>>>>> origin/dev:DIEFER.Servicios/Interfaces/IUsuario.cs
 
 namespace DIEFER.DAL
 {

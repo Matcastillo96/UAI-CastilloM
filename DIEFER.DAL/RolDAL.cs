@@ -55,5 +55,20 @@ namespace DIEFER.DAL
                 return result != null ? (int)result : -1;
             }
         }
+
+        public int Crear_593CM(string nombre)
+        {
+            const string sql = "INSERT INTO ROLES (Nombre) OUTPUT INSERTED.ID_rol VALUES (@Nombre)";
+            using (var conn = ConexionDB_593CM.ObtenerConexion_593CM())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Nombre", nombre);
+                    var result = cmd.ExecuteScalar();
+                    return result != null ? (int)result : -1;
+                }
+            }
+        }
     }
 }

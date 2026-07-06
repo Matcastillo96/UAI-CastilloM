@@ -11,7 +11,6 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DIEFER.BE\DIEFER.BE.csproj" />
     <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />
     <ProjectReference Include="..\DIEFER.DAL\DIEFER.DAL.csproj" />
   </ItemGroup>

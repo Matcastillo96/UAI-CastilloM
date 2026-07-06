@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+<<<<<<<< HEAD:DIEFER.DAL/Interfaces/IRolPermisoDAL.cs
 using DIEFER.Servicios;
+========
+>>>>>>>> origin/dev:DIEFER.Servicios/Interfaces/IRolPermiso.cs
 
 namespace DIEFER.DAL
 {
