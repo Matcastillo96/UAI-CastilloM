@@ -14,14 +14,30 @@ GO
 
 -- ── 1. Patentes con sus cadenas de permiso ──────────────────────────────────
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.usuarios')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Usuarios', 'admin.usuarios');
+DECLARE @permisos TABLE (Nombre NVARCHAR(80), Permiso NVARCHAR(80));
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.bitacora')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Bitácora de Eventos', 'admin.bitacora');
+INSERT INTO @permisos VALUES
+    ('ABM de Usuarios',         'USUARIO_ABM'),
+    ('Gestionar Bitácora',      'BITACORA_GESTIONAR'),
+    ('Gestionar Perfiles',      'PERFILES_GESTIONAR'),
+    ('Gestionar Integridad',    'INTEGRIDAD_GESTIONAR'),
+    ('Gestionar Respaldos',     'RESPALDOS_GESTIONAR');
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.perfiles')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Perfiles', 'admin.perfiles');
+DECLARE @nombre NVARCHAR(80), @permiso NVARCHAR(80);
+DECLARE cur CURSOR FOR SELECT Nombre, Permiso FROM @permisos;
+OPEN cur;
+FETCH NEXT FROM cur INTO @nombre, @permiso;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = @permiso)
+        INSERT INTO Patente (Nombre, Permiso) VALUES (@nombre, @permiso);
+
+    FETCH NEXT FROM cur INTO @nombre, @permiso;
+END
+
+CLOSE cur;
+DEALLOCATE cur;
 GO
 
 -- ── 2. Familia "Administración" que agrupa las patentes de admin ────────────
@@ -35,7 +51,8 @@ DECLARE @idFamiliaAdmin INT = (SELECT ID_familia FROM Familia WHERE Nombre = 'Ad
 INSERT INTO Familia_Patente (ID_familia, ID_patente)
 SELECT @idFamiliaAdmin, P.ID_patente
 FROM Patente P
-WHERE P.Permiso IN ('admin.usuarios', 'admin.bitacora', 'admin.perfiles')
+WHERE P.Permiso IN ('USUARIO_ABM', 'BITACORA_GESTIONAR', 'PERFILES_GESTIONAR',
+                    'INTEGRIDAD_GESTIONAR', 'RESPALDOS_GESTIONAR')
   AND NOT EXISTS (SELECT 1 FROM Familia_Patente FP
                   WHERE FP.ID_familia = @idFamiliaAdmin
                     AND FP.ID_patente = P.ID_patente);
@@ -56,9 +73,10 @@ GO
 -- ── 4. El rol "Auditor" (si existe) recibe solo la bitácora ─────────────────
 
 DECLARE @idRolAuditor INT = (SELECT ID_rol     FROM ROLES   WHERE Nombre = 'Auditor');
-DECLARE @idPatBitacora INT = (SELECT ID_patente FROM Patente WHERE Permiso = 'admin.bitacora');
+DECLARE @idPatBitacora INT = (SELECT ID_patente FROM Patente WHERE Permiso = 'BITACORA_GESTIONAR');
 
 IF @idRolAuditor IS NOT NULL
+   AND @idPatBitacora IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM Rol_Patente
                    WHERE ID_rol = @idRolAuditor AND ID_patente = @idPatBitacora)
     INSERT INTO Rol_Patente (ID_rol, ID_patente) VALUES (@idRolAuditor, @idPatBitacora);
