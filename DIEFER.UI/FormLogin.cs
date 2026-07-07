@@ -103,8 +103,7 @@ namespace DIEFER.UI
                         break;
 
                     case UsuarioBLL_593CM.ResultadoLogin_593CM.ErrorIntegridad:
-                        MostrarError_593CM("Error de integridad de datos detectado. Contacte al Administrador.");
-                        LimpiarCampos_593CM();
+                        ManejarErrorIntegridad_593CM(usuario);
                         break;
 
                     default:
@@ -139,6 +138,33 @@ namespace DIEFER.UI
             txtLogin_593CM.Clear();
             txtPassword_593CM.Clear();
             txtLogin_593CM.Focus();
+        }
+
+        private void ManejarErrorIntegridad_593CM(Usuario_593CM usuario)
+        {
+            var perfilesBLL = new PerfilesBLL_593CM();
+            var permisos = perfilesBLL.GetPermisosEfectivosDeRol_593CM(usuario.ID_rol_593CM);
+
+            if (permisos.Contains("INTEGRIDAD_GESTIONAR"))
+            {
+                var dvBLL = new DVBLL_593CM();
+                var afectadas = dvBLL.VerificarIntegridad_593CM();
+
+                using (var form = new FormReparacionDV_593CM(afectadas))
+                {
+                    form.ShowDialog(this);
+                }
+            }
+            else
+            {
+                MessageBox.Show(
+                    "El sistema no se encuentra disponible. Contacte a un administrador.",
+                    "Error de integridad",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+
+            LimpiarCampos_593CM();
         }
     }
 }
