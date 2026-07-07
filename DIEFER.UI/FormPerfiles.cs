@@ -136,19 +136,63 @@ namespace DIEFER.UI
 
         private void btnNuevaFamilia_Click(object sender, EventArgs e)
         {
-            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nombre de la nueva familia:", "Nueva Familia", string.Empty);
-            if (string.IsNullOrWhiteSpace(nombre)) return;
-
-            int nuevoId = _bll.CrearFamilia_593CM(nombre.Trim());
-            if (nuevoId < 0)
+            using (var form = new FormNuevaFamilia_593CM())
             {
-                MessageBox.Show("No se pudo crear la familia.", "Error",
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    CargarComboFamilias();
+                    if (form.IdFamiliaCreada_593CM > 0)
+                        cmbFamilias.SelectedValue = form.IdFamiliaCreada_593CM;
+                }
+            }
+        }
+
+        private void btnRenombrarF_Click(object sender, EventArgs e)
+        {
+            if (cmbFamilias.SelectedValue == null) return;
+            int id = (int)cmbFamilias.SelectedValue;
+            string actual = cmbFamilias.Text;
+
+            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nuevo nombre de la familia:", "Renombrar Familia", actual);
+            if (string.IsNullOrWhiteSpace(nombre) || nombre.Trim() == actual) return;
+
+            var resultado = _bll.RenombrarFamilia_593CM(id, nombre.Trim());
+            if (resultado == PerfilesBLL_593CM.ResultadoRenombrarFamilia_593CM.NombreDuplicado)
+            {
+                MessageBox.Show("Ya existe una familia con ese nombre.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             CargarComboFamilias();
-            cmbFamilias.SelectedValue = nuevoId;
+        }
+
+        private void btnEliminarF_Click(object sender, EventArgs e)
+        {
+            if (cmbFamilias.SelectedValue == null) return;
+            int id = (int)cmbFamilias.SelectedValue;
+            string nombre = cmbFamilias.Text;
+
+            var confirm = MessageBox.Show(
+                $"¿Eliminar la familia '{nombre}'?",
+                "Confirmar eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+
+            var resultado = _bll.EliminarFamilia_593CM(id);
+            if (resultado == PerfilesBLL_593CM.ResultadoEliminarFamilia_593CM.Referenciada)
+            {
+                MessageBox.Show(
+                    "No se puede eliminar porque está referenciada por otra familia o rol.",
+                    "Eliminación bloqueada",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            CargarComboFamilias();
         }
 
         // ── Rol tab ───────────────────────────────────────────────────────────────────
@@ -209,19 +253,63 @@ namespace DIEFER.UI
 
         private void btnNuevoRol_Click(object sender, EventArgs e)
         {
-            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
-                "Nombre del nuevo rol:", "Nuevo Rol", string.Empty);
-            if (string.IsNullOrWhiteSpace(nombre)) return;
-
-            int nuevoId = _rolBLL.CrearRol_593CM(nombre.Trim());
-            if (nuevoId < 0)
+            using (var form = new FormNuevoRol_593CM())
             {
-                MessageBox.Show("No se pudo crear el rol.", "Error",
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    CargarComboRoles();
+                    if (form.IdRolCreado_593CM > 0)
+                        cmbRoles.SelectedValue = form.IdRolCreado_593CM;
+                }
+            }
+        }
+
+        private void btnRenombrarR_Click(object sender, EventArgs e)
+        {
+            if (cmbRoles.SelectedValue == null) return;
+            int id = (int)cmbRoles.SelectedValue;
+            string actual = cmbRoles.Text;
+
+            string nombre = Microsoft.VisualBasic.Interaction.InputBox(
+                "Nuevo nombre del rol:", "Renombrar Rol", actual);
+            if (string.IsNullOrWhiteSpace(nombre) || nombre.Trim() == actual) return;
+
+            var resultado = _rolBLL.RenombrarRol_593CM(id, nombre.Trim());
+            if (resultado == RolBLL_593CM.ResultadoRenombrarRol_593CM.NombreDuplicado)
+            {
+                MessageBox.Show("Ya existe un rol con ese nombre.", "Error",
                                 MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
             CargarComboRoles();
-            cmbRoles.SelectedValue = nuevoId;
+        }
+
+        private void btnEliminarR_Click(object sender, EventArgs e)
+        {
+            if (cmbRoles.SelectedValue == null) return;
+            int id = (int)cmbRoles.SelectedValue;
+            string nombre = cmbRoles.Text;
+
+            var confirm = MessageBox.Show(
+                $"¿Eliminar el rol '{nombre}'?",
+                "Confirmar eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+
+            var resultado = _rolBLL.EliminarRol_593CM(id);
+            if (resultado == RolBLL_593CM.ResultadoEliminarRol_593CM.Referenciado)
+            {
+                MessageBox.Show(
+                    "No se puede eliminar porque hay usuarios asignados a este rol.",
+                    "Eliminación bloqueada",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+
+            CargarComboRoles();
         }
     }
 }

@@ -151,15 +151,19 @@ BEGIN
         ('Alta de usuario',        'USUARIO_ALTA'),
         ('Baja de usuario',        'USUARIO_BAJA'),
         ('Modificar usuario',      'USUARIO_MODIFICAR'),
+        ('ABM de usuarios',        'USUARIO_ABM'),
         ('Ver bitácora',           'BITACORA_VER'),
         ('Exportar bitácora',      'BITACORA_EXPORTAR'),
+        ('Gestionar bitácora',     'BITACORA_GESTIONAR'),
         ('Crear orden de trabajo', 'OT_CREAR'),
         ('Cerrar orden de trabajo','OT_CERRAR'),
         ('Ver stock',              'STOCK_VER'),
         ('Modificar stock',        'STOCK_MODIFICAR'),
         ('Ver reportes',           'REPORTES_VER'),
         ('Generar reportes',       'REPORTES_GENERAR'),
-        ('Gestionar perfiles',     'PERFILES_GESTIONAR');
+        ('Gestionar perfiles',     'PERFILES_GESTIONAR'),
+        ('Gestionar integridad',   'INTEGRIDAD_GESTIONAR'),
+        ('Gestionar respaldos',    'RESPALDOS_GESTIONAR');
 END
 GO
 
@@ -174,4 +178,44 @@ DECLARE @idAdmin INT = (SELECT ID_rol FROM ROLES WHERE Nombre = 'Administrador')
 IF NOT EXISTS (SELECT 1 FROM USUARIO WHERE DNI = '00000000')
     INSERT INTO USUARIO (DNI, Apellidos, Nombre, Login, Password, ID_rol, Email, Bloqueado, Activo)
     VALUES ('00000000', 'Admin', 'Sistema', 'Sistema.Admin', @passHash, @idAdmin, 'admin@diefer.com', 0, 1);
+GO
+
+-- ── 7. Dígito Verificador (DVH por registro + DVV por tabla) ─────────────────
+
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'DV' AND xtype = 'U')
+BEGIN
+    CREATE TABLE DV (
+        NombreTabla NVARCHAR(128) NOT NULL PRIMARY KEY,
+        DVV         NVARCHAR(64)  NOT NULL,
+        FechaUltimaActualizacion DATETIME NOT NULL
+    );
+END
+GO
+
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'DV_Detalle' AND xtype = 'U')
+BEGIN
+    CREATE TABLE DV_Detalle (
+        NombreTabla   NVARCHAR(128) NOT NULL,
+        ClaveRegistro NVARCHAR(128) NOT NULL,
+        DVH           NVARCHAR(64)  NOT NULL,
+        CONSTRAINT PK_DV_Detalle PRIMARY KEY (NombreTabla, ClaveRegistro)
+    );
+END
+GO
+
+-- Tablas controladas por el mecanismo de DV.
+-- El motor las descubre leyendo esta tabla; la DVV se completa en el primer recálculo.
+IF NOT EXISTS (SELECT 1 FROM DV)
+BEGIN
+    INSERT INTO DV (NombreTabla, DVV, FechaUltimaActualizacion) VALUES
+        ('USUARIO',         'PENDIENTE', GETDATE()),
+        ('ROLES',           'PENDIENTE', GETDATE()),
+        ('Patente',         'PENDIENTE', GETDATE()),
+        ('Familia',         'PENDIENTE', GETDATE()),
+        ('Familia_Patente', 'PENDIENTE', GETDATE()),
+        ('Familia_Familia', 'PENDIENTE', GETDATE()),
+        ('Rol_Patente',     'PENDIENTE', GETDATE()),
+        ('Rol_Familia',     'PENDIENTE', GETDATE()),
+        ('EVENTOS',         'PENDIENTE', GETDATE());
+END
 GO

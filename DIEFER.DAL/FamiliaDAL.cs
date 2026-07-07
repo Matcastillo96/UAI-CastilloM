@@ -166,6 +166,46 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
             }
         }
 
+        public bool Renombrar_593CM(int idFamilia, string nombre)
+        {
+            const string sql = "UPDATE Familia SET Nombre = @Nombre WHERE ID_familia = @ID";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idFamilia);
+                cmd.Parameters.AddWithValue("@Nombre", nombre);
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool Eliminar_593CM(int idFamilia)
+        {
+            const string sql = "DELETE FROM Familia WHERE ID_familia = @ID";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idFamilia);
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public int ContarReferencias_593CM(int idFamilia)
+        {
+            const string sql = @"
+SELECT (SELECT COUNT(1) FROM Familia_Familia WHERE ID_familiaHija = @ID)
+     + (SELECT COUNT(1) FROM Rol_Familia WHERE ID_familia = @ID)";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idFamilia);
+                var result = cmd.ExecuteScalar();
+                return result == null ? 0 : (int)result;
+            }
+        }
+
         public bool AgregarPatente_593CM(int idFamilia, int idPatente)
         {
             const string sql = "INSERT INTO Familia_Patente (ID_familia, ID_patente) VALUES (@ID1, @ID2)";

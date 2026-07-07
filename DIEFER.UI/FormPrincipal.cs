@@ -47,6 +47,8 @@ namespace DIEFER.UI
             mnuAdminUsuarios_593CM.Text = Get_593CM(textos, "menu_admin_usuarios", "Usuarios");
             mnuAdminBitacora_593CM.Text = Get_593CM(textos, "menu_admin_bitacora", "Bitácora de Eventos");
             mnuAdminPerfiles_593CM.Text = Get_593CM(textos, "menu_admin_perfiles", "Perfiles");
+            mnuAdminRespaldos_593CM.Text = Get_593CM(textos, "menu_admin_respaldos", "Respaldos");
+            mnuAdminIntegridad_593CM.Text = Get_593CM(textos, "menu_admin_integridad", "Integridad");
             mnuMaestros_593CM.Text = Get_593CM(textos, "menu_maestros", "MAESTROS");
             mnuUsuario_593CM.Text = Get_593CM(textos, "menu_usuario", "USUARIO");
             mnuReLogin_593CM.Text = Get_593CM(textos, "menu_relogin", "Re-Login");
@@ -91,6 +93,8 @@ namespace DIEFER.UI
             mnuAdminUsuarios_593CM.Enabled = permisos.Contains("USUARIO_ABM");
             mnuAdminBitacora_593CM.Enabled = permisos.Contains("BITACORA_GESTIONAR");
             mnuAdminPerfiles_593CM.Enabled = permisos.Contains("PERFILES_GESTIONAR");
+            mnuAdminRespaldos_593CM.Enabled = permisos.Contains("RESPALDOS_GESTIONAR");
+            mnuAdminIntegridad_593CM.Enabled = permisos.Contains("INTEGRIDAD_GESTIONAR");
 
             mnuVentas_593CM.Enabled = permisos.Contains("OT_ABM");
 
@@ -100,7 +104,9 @@ namespace DIEFER.UI
 
             mnuAdmin_593CM.Visible = mnuAdminUsuarios_593CM.Enabled
                                   || mnuAdminBitacora_593CM.Enabled
-                                  || mnuAdminPerfiles_593CM.Enabled;
+                                  || mnuAdminPerfiles_593CM.Enabled
+                                  || mnuAdminRespaldos_593CM.Enabled
+                                  || mnuAdminIntegridad_593CM.Enabled;
 
             mnuVentas_593CM.Visible = mnuVentas_593CM.Enabled;
 
@@ -134,6 +140,28 @@ namespace DIEFER.UI
             var f = new FormBitacora_593CM();
             f.MdiParent = this;
             f.Show();
+        }
+
+        // ── ADMIN → Respaldos ───────────────────────────────────────────────────────────
+
+        private void mnuRespaldos_Click_593CM(object sender, EventArgs e)
+        {
+            var f = new FormRespaldos_593CM();
+            f.MdiParent = this;
+            f.Show();
+        }
+
+        // ── ADMIN → Integridad ──────────────────────────────────────────────────────────
+
+        private void mnuIntegridad_Click_593CM(object sender, EventArgs e)
+        {
+            var dvBLL = new DVBLL_593CM();
+            var afectadas = dvBLL.VerificarIntegridad_593CM();
+
+            using (var f = new FormReparacionDV_593CM(afectadas))
+            {
+                f.ShowDialog(this);
+            }
         }
 
         // ── USUARIO → Re-Login ──────────────────────────────────────────────────────────

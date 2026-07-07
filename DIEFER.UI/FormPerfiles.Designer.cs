@@ -17,6 +17,8 @@ namespace DIEFER.UI
             this.lblFamilia = new System.Windows.Forms.Label();
             this.cmbFamilias = new System.Windows.Forms.ComboBox();
             this.btnNuevaFamilia = new System.Windows.Forms.Button();
+            this.btnRenombrarF = new System.Windows.Forms.Button();
+            this.btnEliminarF = new System.Windows.Forms.Button();
             this.lblAsignadosF = new System.Windows.Forms.Label();
             this.lstAsignadosF = new System.Windows.Forms.ListBox();
             this.btnQuitarF = new System.Windows.Forms.Button();
@@ -27,6 +29,8 @@ namespace DIEFER.UI
             this.lblRol = new System.Windows.Forms.Label();
             this.cmbRoles = new System.Windows.Forms.ComboBox();
             this.btnNuevoRol = new System.Windows.Forms.Button();
+            this.btnRenombrarR = new System.Windows.Forms.Button();
+            this.btnEliminarR = new System.Windows.Forms.Button();
             this.lblAsignadosR = new System.Windows.Forms.Label();
             this.lstAsignadosR = new System.Windows.Forms.ListBox();
             this.btnQuitarR = new System.Windows.Forms.Button();
@@ -54,6 +58,8 @@ namespace DIEFER.UI
             this.tabFamilias.Controls.Add(this.lblFamilia);
             this.tabFamilias.Controls.Add(this.cmbFamilias);
             this.tabFamilias.Controls.Add(this.btnNuevaFamilia);
+            this.tabFamilias.Controls.Add(this.btnRenombrarF);
+            this.tabFamilias.Controls.Add(this.btnEliminarF);
             this.tabFamilias.Controls.Add(this.lblAsignadosF);
             this.tabFamilias.Controls.Add(this.lstAsignadosF);
             this.tabFamilias.Controls.Add(this.btnQuitarF);
@@ -82,18 +88,36 @@ namespace DIEFER.UI
             this.cmbFamilias.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbFamilias.Location = new System.Drawing.Point(70, 9);
             this.cmbFamilias.Name = "cmbFamilias";
-            this.cmbFamilias.Size = new System.Drawing.Size(280, 21);
+            this.cmbFamilias.Size = new System.Drawing.Size(220, 21);
             this.cmbFamilias.TabIndex = 0;
             this.cmbFamilias.SelectedIndexChanged += new System.EventHandler(this.cmbFamilias_SelectedIndexChanged);
             // 
             // btnNuevaFamilia
             // 
-            this.btnNuevaFamilia.Location = new System.Drawing.Point(360, 7);
+            this.btnNuevaFamilia.Location = new System.Drawing.Point(300, 7);
             this.btnNuevaFamilia.Name = "btnNuevaFamilia";
-            this.btnNuevaFamilia.Size = new System.Drawing.Size(110, 25);
+            this.btnNuevaFamilia.Size = new System.Drawing.Size(95, 25);
             this.btnNuevaFamilia.TabIndex = 1;
-            this.btnNuevaFamilia.Text = "Nueva Familia";
+            this.btnNuevaFamilia.Text = "Nueva";
             this.btnNuevaFamilia.Click += new System.EventHandler(this.btnNuevaFamilia_Click);
+            // 
+            // btnRenombrarF
+            // 
+            this.btnRenombrarF.Location = new System.Drawing.Point(400, 7);
+            this.btnRenombrarF.Name = "btnRenombrarF";
+            this.btnRenombrarF.Size = new System.Drawing.Size(95, 25);
+            this.btnRenombrarF.TabIndex = 2;
+            this.btnRenombrarF.Text = "Renombrar";
+            this.btnRenombrarF.Click += new System.EventHandler(this.btnRenombrarF_Click);
+            // 
+            // btnEliminarF
+            // 
+            this.btnEliminarF.Location = new System.Drawing.Point(500, 7);
+            this.btnEliminarF.Name = "btnEliminarF";
+            this.btnEliminarF.Size = new System.Drawing.Size(95, 25);
+            this.btnEliminarF.TabIndex = 3;
+            this.btnEliminarF.Text = "Eliminar";
+            this.btnEliminarF.Click += new System.EventHandler(this.btnEliminarF_Click);
             // 
             // lblAsignadosF
             // 
@@ -101,7 +125,7 @@ namespace DIEFER.UI
             this.lblAsignadosF.Location = new System.Drawing.Point(8, 42);
             this.lblAsignadosF.Name = "lblAsignadosF";
             this.lblAsignadosF.Size = new System.Drawing.Size(59, 13);
-            this.lblAsignadosF.TabIndex = 2;
+            this.lblAsignadosF.TabIndex = 4;
             this.lblAsignadosF.Text = "Asignados:";
             // 
             // lstAsignadosF
@@ -110,14 +134,14 @@ namespace DIEFER.UI
             this.lstAsignadosF.Location = new System.Drawing.Point(8, 60);
             this.lstAsignadosF.Name = "lstAsignadosF";
             this.lstAsignadosF.Size = new System.Drawing.Size(330, 355);
-            this.lstAsignadosF.TabIndex = 2;
+            this.lstAsignadosF.TabIndex = 5;
             // 
             // btnQuitarF
             // 
             this.btnQuitarF.Location = new System.Drawing.Point(348, 180);
             this.btnQuitarF.Name = "btnQuitarF";
             this.btnQuitarF.Size = new System.Drawing.Size(80, 28);
-            this.btnQuitarF.TabIndex = 3;
+            this.btnQuitarF.TabIndex = 6;
             this.btnQuitarF.Text = "Quitar >>";
             this.btnQuitarF.Click += new System.EventHandler(this.btnQuitarF_Click);
             // 
@@ -126,7 +150,7 @@ namespace DIEFER.UI
             this.btnAgregarF.Location = new System.Drawing.Point(348, 146);
             this.btnAgregarF.Name = "btnAgregarF";
             this.btnAgregarF.Size = new System.Drawing.Size(80, 28);
-            this.btnAgregarF.TabIndex = 4;
+            this.btnAgregarF.TabIndex = 7;
             this.btnAgregarF.Text = "<< Agregar";
             this.btnAgregarF.Click += new System.EventHandler(this.btnAgregarF_Click);
             // 
@@ -136,7 +160,7 @@ namespace DIEFER.UI
             this.lstDisponiblesF.Location = new System.Drawing.Point(438, 60);
             this.lstDisponiblesF.Name = "lstDisponiblesF";
             this.lstDisponiblesF.Size = new System.Drawing.Size(330, 355);
-            this.lstDisponiblesF.TabIndex = 5;
+            this.lstDisponiblesF.TabIndex = 8;
             // 
             // lblDisponiblesF
             // 
@@ -144,7 +168,7 @@ namespace DIEFER.UI
             this.lblDisponiblesF.Location = new System.Drawing.Point(438, 42);
             this.lblDisponiblesF.Name = "lblDisponiblesF";
             this.lblDisponiblesF.Size = new System.Drawing.Size(64, 13);
-            this.lblDisponiblesF.TabIndex = 6;
+            this.lblDisponiblesF.TabIndex = 9;
             this.lblDisponiblesF.Text = "Disponibles:";
             // 
             // tabRoles
@@ -152,6 +176,8 @@ namespace DIEFER.UI
             this.tabRoles.Controls.Add(this.lblRol);
             this.tabRoles.Controls.Add(this.cmbRoles);
             this.tabRoles.Controls.Add(this.btnNuevoRol);
+            this.tabRoles.Controls.Add(this.btnRenombrarR);
+            this.tabRoles.Controls.Add(this.btnEliminarR);
             this.tabRoles.Controls.Add(this.lblAsignadosR);
             this.tabRoles.Controls.Add(this.lstAsignadosR);
             this.tabRoles.Controls.Add(this.btnQuitarR);
@@ -180,18 +206,36 @@ namespace DIEFER.UI
             this.cmbRoles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbRoles.Location = new System.Drawing.Point(70, 9);
             this.cmbRoles.Name = "cmbRoles";
-            this.cmbRoles.Size = new System.Drawing.Size(280, 21);
+            this.cmbRoles.Size = new System.Drawing.Size(220, 21);
             this.cmbRoles.TabIndex = 0;
             this.cmbRoles.SelectedIndexChanged += new System.EventHandler(this.cmbRoles_SelectedIndexChanged);
             //
             // btnNuevoRol
             //
-            this.btnNuevoRol.Location = new System.Drawing.Point(360, 7);
+            this.btnNuevoRol.Location = new System.Drawing.Point(300, 7);
             this.btnNuevoRol.Name = "btnNuevoRol";
-            this.btnNuevoRol.Size = new System.Drawing.Size(110, 25);
-            this.btnNuevoRol.TabIndex = 6;
-            this.btnNuevoRol.Text = "Nuevo Rol";
+            this.btnNuevoRol.Size = new System.Drawing.Size(95, 25);
+            this.btnNuevoRol.TabIndex = 1;
+            this.btnNuevoRol.Text = "Nuevo";
             this.btnNuevoRol.Click += new System.EventHandler(this.btnNuevoRol_Click);
+            //
+            // btnRenombrarR
+            //
+            this.btnRenombrarR.Location = new System.Drawing.Point(400, 7);
+            this.btnRenombrarR.Name = "btnRenombrarR";
+            this.btnRenombrarR.Size = new System.Drawing.Size(95, 25);
+            this.btnRenombrarR.TabIndex = 2;
+            this.btnRenombrarR.Text = "Renombrar";
+            this.btnRenombrarR.Click += new System.EventHandler(this.btnRenombrarR_Click);
+            //
+            // btnEliminarR
+            //
+            this.btnEliminarR.Location = new System.Drawing.Point(500, 7);
+            this.btnEliminarR.Name = "btnEliminarR";
+            this.btnEliminarR.Size = new System.Drawing.Size(95, 25);
+            this.btnEliminarR.TabIndex = 3;
+            this.btnEliminarR.Text = "Eliminar";
+            this.btnEliminarR.Click += new System.EventHandler(this.btnEliminarR_Click);
             //
             // lblAsignadosR
             //
@@ -199,7 +243,7 @@ namespace DIEFER.UI
             this.lblAsignadosR.Location = new System.Drawing.Point(8, 42);
             this.lblAsignadosR.Name = "lblAsignadosR";
             this.lblAsignadosR.Size = new System.Drawing.Size(59, 13);
-            this.lblAsignadosR.TabIndex = 1;
+            this.lblAsignadosR.TabIndex = 4;
             this.lblAsignadosR.Text = "Asignados:";
             // 
             // lstAsignadosR
@@ -208,14 +252,14 @@ namespace DIEFER.UI
             this.lstAsignadosR.Location = new System.Drawing.Point(8, 60);
             this.lstAsignadosR.Name = "lstAsignadosR";
             this.lstAsignadosR.Size = new System.Drawing.Size(330, 355);
-            this.lstAsignadosR.TabIndex = 1;
+            this.lstAsignadosR.TabIndex = 5;
             // 
             // btnQuitarR
             // 
             this.btnQuitarR.Location = new System.Drawing.Point(348, 180);
             this.btnQuitarR.Name = "btnQuitarR";
             this.btnQuitarR.Size = new System.Drawing.Size(80, 28);
-            this.btnQuitarR.TabIndex = 2;
+            this.btnQuitarR.TabIndex = 6;
             this.btnQuitarR.Text = "Quitar >>";
             this.btnQuitarR.Click += new System.EventHandler(this.btnQuitarR_Click);
             // 
@@ -224,7 +268,7 @@ namespace DIEFER.UI
             this.btnAgregarR.Location = new System.Drawing.Point(348, 146);
             this.btnAgregarR.Name = "btnAgregarR";
             this.btnAgregarR.Size = new System.Drawing.Size(80, 28);
-            this.btnAgregarR.TabIndex = 3;
+            this.btnAgregarR.TabIndex = 7;
             this.btnAgregarR.Text = "<< Agregar";
             this.btnAgregarR.Click += new System.EventHandler(this.btnAgregarR_Click);
             // 
@@ -234,7 +278,7 @@ namespace DIEFER.UI
             this.lstDisponiblesR.Location = new System.Drawing.Point(438, 60);
             this.lstDisponiblesR.Name = "lstDisponiblesR";
             this.lstDisponiblesR.Size = new System.Drawing.Size(330, 355);
-            this.lstDisponiblesR.TabIndex = 4;
+            this.lstDisponiblesR.TabIndex = 8;
             // 
             // lblDisponiblesR
             // 
@@ -242,7 +286,7 @@ namespace DIEFER.UI
             this.lblDisponiblesR.Location = new System.Drawing.Point(438, 42);
             this.lblDisponiblesR.Name = "lblDisponiblesR";
             this.lblDisponiblesR.Size = new System.Drawing.Size(64, 13);
-            this.lblDisponiblesR.TabIndex = 5;
+            this.lblDisponiblesR.TabIndex = 9;
             this.lblDisponiblesR.Text = "Disponibles:";
             // 
             // FormPerfiles_593CM
@@ -273,6 +317,8 @@ namespace DIEFER.UI
         private System.Windows.Forms.Label       lblFamilia;
         private System.Windows.Forms.ComboBox    cmbFamilias;
         private System.Windows.Forms.Button      btnNuevaFamilia;
+        private System.Windows.Forms.Button      btnRenombrarF;
+        private System.Windows.Forms.Button      btnEliminarF;
         private System.Windows.Forms.ListBox     lstAsignadosF;
         private System.Windows.Forms.ListBox     lstDisponiblesF;
         private System.Windows.Forms.Label       lblAsignadosF;
@@ -282,6 +328,8 @@ namespace DIEFER.UI
         private System.Windows.Forms.Label       lblRol;
         private System.Windows.Forms.ComboBox    cmbRoles;
         private System.Windows.Forms.Button      btnNuevoRol;
+        private System.Windows.Forms.Button      btnRenombrarR;
+        private System.Windows.Forms.Button      btnEliminarR;
         private System.Windows.Forms.ListBox     lstAsignadosR;
         private System.Windows.Forms.ListBox     lstDisponiblesR;
         private System.Windows.Forms.Label       lblAsignadosR;

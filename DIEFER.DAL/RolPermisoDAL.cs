@@ -92,6 +92,30 @@ WHERE RF.ID_rol = @ID ORDER BY F.Nombre";
             return Ejecutar_593CM(sql, idRol, idFamilia);
         }
 
+        public bool QuitarTodasLasPatentes_593CM(int idRol)
+        {
+            const string sql = "DELETE FROM Rol_Patente WHERE ID_rol=@R";
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@R", idRol);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+        }
+
+        public bool QuitarTodasLasFamilias_593CM(int idRol)
+        {
+            const string sql = "DELETE FROM Rol_Familia WHERE ID_rol=@R";
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@R", idRol);
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+        }
+
         private static bool Ejecutar_593CM(string sql, int param1, int param2)
         {
             using (var conn = ConexionDB_593CM.AbrirConexion_593CM())

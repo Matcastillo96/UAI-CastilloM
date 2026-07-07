@@ -13,5 +13,14 @@ namespace DIEFER.DAL
 
         /// <summary>Crea un rol. Retorna el ID generado, o -1 si falla.</summary>
         int Crear_593CM(string nombre);
+
+        /// <summary>Renombra un rol. Retorna true si fue exitoso.</summary>
+        bool Renombrar_593CM(int idRol, string nombre);
+
+        /// <summary>Elimina un rol. Retorna true si fue exitoso.</summary>
+        bool Eliminar_593CM(int idRol);
+
+        /// <summary>Cuenta los usuarios que tienen asignado el rol.</summary>
+        int ContarUsuarios_593CM(int idRol);
     }
 }

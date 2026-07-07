@@ -21,6 +21,37 @@ namespace DIEFER.DAL
             }
         }
 
+        /// <summary>Connection string dirigida a la base de datos master (requerido para BACKUP/RESTORE).</summary>
+        public static string ConnectionStringMaster_593CM
+        {
+            get
+            {
+                var builder = new SqlConnectionStringBuilder(ConnectionStringInterno_593CM)
+                {
+                    InitialCatalog = "master"
+                };
+                return builder.ConnectionString;
+            }
+        }
+
+        public static SqlConnection AbrirConexionMaster_593CM()
+        {
+            try
+            {
+                var conn = new SqlConnection(ConnectionStringMaster_593CM);
+                conn.Open();
+                return conn;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception(
+                    "No se pudo conectar a la base de datos master.\n\n" +
+                    "Servidor: " + ObtenerServidor_593CM() + "\n" +
+                    "Error: " + ex.Message,
+                    ex);
+            }
+        }
+
         private static SqlConnection ObtenerConexion_593CM()
         {
             return new SqlConnection(ConnectionString_593CM);

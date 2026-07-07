@@ -24,6 +24,20 @@ namespace DIEFER.DAL
         /// <summary>Crea una familia. Retorna el ID generado, o -1 si falla.</summary>
         int Crear_593CM(string nombre);
 
+        /// <summary>Renombra una familia. Retorna true si fue exitoso.</summary>
+        bool Renombrar_593CM(int idFamilia, string nombre);
+
+        /// <summary>
+        /// Elimina una familia. Previamente se deben haber eliminado sus vínculos.
+        /// Retorna true si fue exitoso.
+        /// </summary>
+        bool Eliminar_593CM(int idFamilia);
+
+        /// <summary>
+        /// Cuenta las referencias a la familia como hija en Familia_Familia o en Rol_Familia.
+        /// </summary>
+        int ContarReferencias_593CM(int idFamilia);
+
         bool AgregarPatente_593CM(int idFamilia, int idPatente);
         bool AgregarSubFamilia_593CM(int idFamiliaPadre, int idFamiliaHija);
         bool QuitarPatente_593CM(int idFamilia, int idPatente);

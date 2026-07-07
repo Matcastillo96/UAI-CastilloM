@@ -16,9 +16,11 @@ namespace DIEFER.UI
 
             this.msMenu_593CM             = new System.Windows.Forms.MenuStrip();
             this.mnuAdmin_593CM           = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuAdminUsuarios_593CM   = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuAdminBitacora_593CM   = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuAdminPerfiles_593CM   = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminUsuarios_593CM    = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminBitacora_593CM    = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminPerfiles_593CM    = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminRespaldos_593CM   = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuAdminIntegridad_593CM  = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuMaestros_593CM        = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuUsuario_593CM         = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuReLogin_593CM         = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,7 +56,8 @@ namespace DIEFER.UI
 
             // mnuAdmin_593CM
             this.mnuAdmin_593CM.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM, this.mnuAdminPerfiles_593CM
+                this.mnuAdminUsuarios_593CM, this.mnuAdminBitacora_593CM,
+                this.mnuAdminPerfiles_593CM, this.mnuAdminRespaldos_593CM, this.mnuAdminIntegridad_593CM
             });
             this.mnuAdmin_593CM.Name = "mnuAdmin_593CM";
             this.mnuAdmin_593CM.Text = "ADMIN";
@@ -73,6 +76,16 @@ namespace DIEFER.UI
             this.mnuAdminPerfiles_593CM.Name   = "mnuAdminPerfiles_593CM";
             this.mnuAdminPerfiles_593CM.Text   = "Perfiles";
             this.mnuAdminPerfiles_593CM.Click += new System.EventHandler(this.mnuPerfiles_Click_593CM);
+
+            // mnuAdminRespaldos_593CM
+            this.mnuAdminRespaldos_593CM.Name   = "mnuAdminRespaldos_593CM";
+            this.mnuAdminRespaldos_593CM.Text   = "Respaldos";
+            this.mnuAdminRespaldos_593CM.Click += new System.EventHandler(this.mnuRespaldos_Click_593CM);
+
+            // mnuAdminIntegridad_593CM
+            this.mnuAdminIntegridad_593CM.Name   = "mnuAdminIntegridad_593CM";
+            this.mnuAdminIntegridad_593CM.Text   = "Integridad";
+            this.mnuAdminIntegridad_593CM.Click += new System.EventHandler(this.mnuIntegridad_Click_593CM);
 
             // mnuMaestros_593CM (grisado)
             this.mnuMaestros_593CM.Name    = "mnuMaestros_593CM";
@@ -182,6 +195,8 @@ namespace DIEFER.UI
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminUsuarios_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminBitacora_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuAdminPerfiles_593CM;
+        private System.Windows.Forms.ToolStripMenuItem     mnuAdminRespaldos_593CM;
+        private System.Windows.Forms.ToolStripMenuItem     mnuAdminIntegridad_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuMaestros_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuUsuario_593CM;
         private System.Windows.Forms.ToolStripMenuItem     mnuReLogin_593CM;

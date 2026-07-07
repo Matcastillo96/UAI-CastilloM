@@ -1,6 +1,7 @@
 using DIEFER.DAL;
 using DIEFER.DAL.Interfaces;
 using DIEFER.Servicios;
+using DIEFER.Servicios.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -12,18 +13,21 @@ namespace DIEFER.BLL
         private readonly IUsuarioDAL_593CM _usuarioDAL_593CM;
         private readonly EventoBLL_593CM _eventoBLL_593CM;
         private readonly RolBLL_593CM _rolBLL_593CM;
+        private readonly IDVBLL_593CM _dvBLL_593CM;
 
         private static readonly Dictionary<string, int> _intentosFallidos_593CM =
             new Dictionary<string, int>();
         private static readonly object _loginLock = new object();
 
-        public UsuarioBLL_593CM() : this(new UsuarioDAL_593CM(), new EventoBLL_593CM()) { }
+        public UsuarioBLL_593CM() : this(new UsuarioDAL_593CM(), new EventoBLL_593CM(), null) { }
 
-        public UsuarioBLL_593CM(IUsuarioDAL_593CM usuarioDAL, EventoBLL_593CM eventoBLL)
+        public UsuarioBLL_593CM(IUsuarioDAL_593CM usuarioDAL, EventoBLL_593CM eventoBLL,
+                                IDVBLL_593CM dvBLL)
         {
             _usuarioDAL_593CM = usuarioDAL;
             _eventoBLL_593CM = eventoBLL;
             _rolBLL_593CM = new RolBLL_593CM();
+            _dvBLL_593CM = dvBLL ?? new DVBLL_593CM();
         }
 
         // ── Autenticación ───────────────────────────────────────────────────────────────
@@ -73,9 +77,14 @@ namespace DIEFER.BLL
                 return ResultadoLogin_593CM.CredencialesInvalidas;
             }
 
-            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
-            if (!DVService_593CM.VerificarIntegridad_593CM(logins))
+            var afectadas = _dvBLL_593CM.VerificarIntegridad_593CM();
+            if (afectadas.Count > 0)
+            {
+                // El usuario tiene credenciales válidas; se devuelve para que la UI
+                // decida si puede ingresar a la reparación de DV según sus permisos.
+                usuarioAutenticado = usuario;
                 return ResultadoLogin_593CM.ErrorIntegridad;
+            }
 
             lock (_loginLock)
                 _intentosFallidos_593CM.Remove(login);
@@ -311,8 +320,9 @@ namespace DIEFER.BLL
 
         private void ActualizarDV_593CM()
         {
-            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
-            DVService_593CM.ActualizarReferencia_593CM(logins);
+            // El evento de negocio ya fue registrado por la operación invocante.
+            // Solo se normaliza el DV de USUARIO (y EVENTOS queda consistente por el registro previo).
+            _dvBLL_593CM.RecalcularTabla_593CM("USUARIO");
         }
 
         // ── Re-Login ───────────────────────────────────────────────────────────────────
@@ -364,8 +374,8 @@ namespace DIEFER.BLL
                 return ResultadoReLogin_593CM.CuentaInactivaBloqueada;
             }
 
-            var logins = _usuarioDAL_593CM.GetLoginsParaDV_593CM();
-            if (!DVService_593CM.VerificarIntegridad_593CM(logins))
+            var afectadas = _dvBLL_593CM.VerificarIntegridad_593CM();
+            if (afectadas.Count > 0)
                 return ResultadoReLogin_593CM.ErrorIntegridad;
 
             // Refresca el usuario en memoria con los datos actuales de la DB:
