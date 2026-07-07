@@ -19,17 +19,5 @@ namespace DIEFER.DAL.Interfaces
         bool AgregarFamilia_593CM(int idRol, int idFamilia);
         bool QuitarPatente_593CM(int idRol, int idPatente);
         bool QuitarFamilia_593CM(int idRol, int idFamilia);
-
-        /// <summary>
-        /// Agrega una familia a un rol y, en la misma transacción nativa, quita
-        /// las patentes/familias directas que quedaron redundantes. Evita abrir
-        /// varias conexiones dentro de una transacción ambiente (lo que forzaría
-        /// una promoción a transacción distribuida/MSDTC).
-        /// </summary>
-        bool AgregarFamiliaConLimpieza_593CM(
-            int idRol,
-            int idFamilia,
-            IEnumerable<int> idsPatentesAQuitar,
-            IEnumerable<int> idsFamiliasAQuitar);
     }
 }

@@ -8,6 +8,11 @@ namespace DIEFER.Servicios
             "Usuario", "Maestro", "Ventas", "Compras", "Perfiles", "Servicio"
         };
 
+        /*public static readonly string[] RolesConAuditoria_593CM =
+        {
+            "Administrador", "Gerencial", "Supervisor"
+        };*/
+
         // Catálogo oficial: (Evento, Módulo, Criticidad)
         public static readonly CatalogoEvento_593CM[] EventosCatalogo_593CM =
         {

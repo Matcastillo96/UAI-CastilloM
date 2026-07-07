@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DIEFER.Servicios;
 
-namespace DIEFER.DAL.Interfaces
+namespace DIEFER.DAL
 {
     /// <summary>Contrato de acceso a datos para la entidad Rol.</summary>
     public interface IRolDAL_593CM

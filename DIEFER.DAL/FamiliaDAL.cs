@@ -190,59 +190,10 @@ WHERE FF.ID_familiaPadre = @ID ORDER BY F.Nombre";
             return Ejecutar_593CM(sql, idFamiliaPadre, idFamiliaHija);
         }
 
-        public bool AgregarSubFamiliaConLimpieza_593CM(
-            int idFamiliaPadre,
-            int idFamiliaHija,
-            IEnumerable<int> idsPatentesAQuitar,
-            IEnumerable<int> idsFamiliasAQuitar)
-        {
-            const string sqlInsertar = "INSERT INTO Familia_Familia (ID_familiaPadre, ID_familiaHija) VALUES (@ID1, @ID2)";
-            const string sqlQuitarPatente = "DELETE FROM Familia_Patente WHERE ID_familia=@ID1 AND ID_patente=@ID2";
-            const string sqlQuitarSubFamilia = "DELETE FROM Familia_Familia WHERE ID_familiaPadre=@ID1 AND ID_familiaHija=@ID2";
-
-            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
-            using (var tx = conn.BeginTransaction())
-            {
-                try
-                {
-                    if (!EjecutarEnTransaccion_593CM(conn, tx, sqlInsertar, idFamiliaPadre, idFamiliaHija))
-                    {
-                        tx.Rollback();
-                        return false;
-                    }
-
-                    foreach (var idPatente in idsPatentesAQuitar)
-                        EjecutarEnTransaccion_593CM(conn, tx, sqlQuitarPatente, idFamiliaPadre, idPatente);
-
-                    foreach (var idFamiliaHijaAQuitar in idsFamiliasAQuitar)
-                        EjecutarEnTransaccion_593CM(conn, tx, sqlQuitarSubFamilia, idFamiliaPadre, idFamiliaHijaAQuitar);
-
-                    tx.Commit();
-                    return true;
-                }
-                catch
-                {
-                    tx.Rollback();
-                    throw;
-                }
-            }
-        }
-
         private static bool Ejecutar_593CM(string sql, int param1, int param2)
         {
             using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
             using (var cmd = new SqlCommand(sql, conn))
-            {
-                cmd.Parameters.AddWithValue("@ID1", param1);
-                cmd.Parameters.AddWithValue("@ID2", param2);
-
-                return cmd.ExecuteNonQuery() > 0;
-            }
-        }
-
-        private static bool EjecutarEnTransaccion_593CM(SqlConnection conn, SqlTransaction tx, string sql, int param1, int param2)
-        {
-            using (var cmd = new SqlCommand(sql, conn, tx))
             {
                 cmd.Parameters.AddWithValue("@ID1", param1);
                 cmd.Parameters.AddWithValue("@ID2", param2);
