@@ -6,11 +6,11 @@ namespace DIEFER.BLL
 {
     public class RolBLL_593CM
     {
-        private readonly IRol_593CM _rolDAL_593CM;
+        private readonly IRolDAL_593CM _rolDAL_593CM;
 
         public RolBLL_593CM() : this(new RolDAL_593CM()) { }
 
-        public RolBLL_593CM(IRol_593CM rolDAL)
+        public RolBLL_593CM(IRolDAL_593CM rolDAL)
         {
             _rolDAL_593CM = rolDAL;
         }

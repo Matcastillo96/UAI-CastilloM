@@ -2,12 +2,16 @@ using System.Collections.Generic;
 
 namespace DIEFER.Servicios
 {
-    // Leaf del patrón Composite: permiso atómico.
+    /// <summary>
+    /// Leaf del patrón Composite: permiso atómico e indivisible.
+    /// </summary>
     public class Patente_593CM : IPermiso_593CM
     {
         public int    ID_patente_593CM { get; set; }
         public string Nombre_593CM     { get; set; }
-        public string Permiso_593CM    { get; set; }  // cadena de permiso (ej: "usuarios.crear")
+
+        /// <summary>Cadena de permiso consumida por la UI (ej: "admin.usuarios").</summary>
+        public string Permiso_593CM    { get; set; }
 
         public IEnumerable<int> ObtenerIdsPatente_593CM() => new[] { ID_patente_593CM };
     }

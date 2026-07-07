@@ -9,7 +9,7 @@ namespace DIEFER.UI
     // Formulario MDI principal — contenedor de todos los módulos de DIEFER.
     public partial class FormPrincipal_593CM : Form, IIdiomaObserver_593CM
     {
-        private readonly UsuarioBLL_593CM  _usuarioCtrl_593CM;
+        private readonly UsuarioBLL_593CM _usuarioCtrl_593CM;
         private readonly PerfilesBLL_593CM _perfilesBLL_593CM;
 
         public FormPrincipal_593CM()
@@ -22,10 +22,13 @@ namespace DIEFER.UI
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            IdiomaService_593CM.GetInstancia_593CM().Suscribir_593CM(this);
+
             ActualizarFooter_593CM();
             AplicarPermisosPorRol_593CM();
+
             tmrReloj_593CM.Start();
-            IdiomaService_593CM.GetInstancia_593CM().Suscribir_593CM(this);
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
@@ -40,20 +43,20 @@ namespace DIEFER.UI
         {
             if (InvokeRequired) { Invoke(new Action(() => OnIdiomaChanged_593CM(codigo, textos))); return; }
 
-            mnuAdmin_593CM.Text           = Get_593CM(textos, "menu_admin",           "ADMIN");
-            mnuAdminUsuarios_593CM.Text   = Get_593CM(textos, "menu_admin_usuarios",  "Usuarios");
-            mnuAdminBitacora_593CM.Text   = Get_593CM(textos, "menu_admin_bitacora",  "Bitácora de Eventos");
-            mnuAdminPerfiles_593CM.Text   = Get_593CM(textos, "menu_admin_perfiles",  "Perfiles");
-            mnuMaestros_593CM.Text        = Get_593CM(textos, "menu_maestros",        "MAESTROS");
-            mnuUsuario_593CM.Text         = Get_593CM(textos, "menu_usuario",         "USUARIO");
-            mnuReLogin_593CM.Text         = Get_593CM(textos, "menu_relogin",         "Re-Login");
-            mnuCambiarClave_593CM.Text    = Get_593CM(textos, "menu_cambiar_clave",   "Cambiar Clave");
-            mnuCambiarIdioma_593CM.Text   = Get_593CM(textos, "menu_cambiar_idioma",  "Cambiar Idioma");
-            mnuLogout_593CM.Text          = Get_593CM(textos, "menu_logout",          "Logout");
-            mnuVentas_593CM.Text          = Get_593CM(textos, "menu_ventas",          "VENTAS");
-            mnuCompras_593CM.Text         = Get_593CM(textos, "menu_compras",         "COMPRAS");
-            mnuReportes_593CM.Text        = Get_593CM(textos, "menu_reportes",        "REPORTES");
-            mnuAyuda_593CM.Text           = Get_593CM(textos, "menu_ayuda",           "AYUDA");
+            mnuAdmin_593CM.Text = Get_593CM(textos, "menu_admin", "ADMIN");
+            mnuAdminUsuarios_593CM.Text = Get_593CM(textos, "menu_admin_usuarios", "Usuarios");
+            mnuAdminBitacora_593CM.Text = Get_593CM(textos, "menu_admin_bitacora", "Bitácora de Eventos");
+            mnuAdminPerfiles_593CM.Text = Get_593CM(textos, "menu_admin_perfiles", "Perfiles");
+            mnuMaestros_593CM.Text = Get_593CM(textos, "menu_maestros", "MAESTROS");
+            mnuUsuario_593CM.Text = Get_593CM(textos, "menu_usuario", "USUARIO");
+            mnuReLogin_593CM.Text = Get_593CM(textos, "menu_relogin", "Re-Login");
+            mnuCambiarClave_593CM.Text = Get_593CM(textos, "menu_cambiar_clave", "Cambiar Clave");
+            mnuCambiarIdioma_593CM.Text = Get_593CM(textos, "menu_cambiar_idioma", "Cambiar Idioma");
+            mnuLogout_593CM.Text = Get_593CM(textos, "menu_logout", "Logout");
+            mnuVentas_593CM.Text = Get_593CM(textos, "menu_ventas", "VENTAS");
+            mnuCompras_593CM.Text = Get_593CM(textos, "menu_compras", "COMPRAS");
+            mnuReportes_593CM.Text = Get_593CM(textos, "menu_reportes", "REPORTES");
+            mnuAyuda_593CM.Text = Get_593CM(textos, "menu_ayuda", "AYUDA");
 
             ActualizarFooter_593CM();
         }
@@ -68,12 +71,12 @@ namespace DIEFER.UI
 
         private void ActualizarFooter_593CM()
         {
-            var u   = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM;
+            var u = SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM;
             var svc = IdiomaService_593CM.GetInstancia_593CM();
             if (u != null)
             {
                 slUsuario_593CM.Text = $"{svc.ObtenerTexto_593CM("sl_usuario", "Usuario:")} {u.Login_593CM}";
-                slRol_593CM.Text     = $"{svc.ObtenerTexto_593CM("sl_rol", "Rol:")} {u.Rol_593CM}";
+                slRol_593CM.Text = $"{svc.ObtenerTexto_593CM("sl_rol", "Rol:")} {u.Rol_593CM}";
             }
         }
 
@@ -85,12 +88,25 @@ namespace DIEFER.UI
             // Consume los permisos definidos en la DB para el rol del usuario.
             var permisos = _perfilesBLL_593CM.GetPermisosEfectivosDeRol_593CM(u.ID_rol_593CM);
 
-            mnuAdminUsuarios_593CM.Enabled = permisos.Contains("admin.usuarios");
-            mnuAdminBitacora_593CM.Enabled = permisos.Contains("admin.bitacora");
-            mnuAdminPerfiles_593CM.Enabled = permisos.Contains("admin.perfiles");
+            mnuAdminUsuarios_593CM.Enabled = permisos.Contains("USUARIO_ABM");
+            mnuAdminBitacora_593CM.Enabled = permisos.Contains("BITACORA_GESTIONAR");
+            mnuAdminPerfiles_593CM.Enabled = permisos.Contains("PERFILES_GESTIONAR");
+
+            mnuVentas_593CM.Enabled = permisos.Contains("OT_ABM");
+
+            mnuCompras_593CM.Enabled = permisos.Contains("STOCK_ABM");
+
+            mnuReportes_593CM.Enabled = permisos.Contains("REPORTES_GESTIONAR");
+
             mnuAdmin_593CM.Visible = mnuAdminUsuarios_593CM.Enabled
                                   || mnuAdminBitacora_593CM.Enabled
                                   || mnuAdminPerfiles_593CM.Enabled;
+
+            mnuVentas_593CM.Visible = mnuVentas_593CM.Enabled;
+
+            mnuCompras_593CM.Visible = mnuCompras_593CM.Enabled;
+
+            mnuReportes_593CM.Visible = mnuReportes_593CM.Enabled;
         }
 
         // ── ADMIN → Usuarios ────────────────────────────────────────────────────────────
@@ -124,23 +140,67 @@ namespace DIEFER.UI
 
         private void mnuReLogin_Click_593CM(object sender, EventArgs e)
         {
-            var sesion   = SessionManager_593CM.GetInstancia_593CM();
+            var sesion = SessionManager_593CM.GetInstancia_593CM();
             string login = sesion.UsuarioActual_593CM?.Login_593CM ?? "(desconocido)";
 
             var respuesta = MessageBox.Show(
-                $"Sesión activa: {login}\n\n¿Desea re-loguearse para aplicar permisos actualizados?",
-                "Re-Login — Sesión activa",
+                $"Sesión activa: {login}\n\n¿Desea actualizar la sesión para aplicar permisos modificados?",
+                "Re-Login — Actualizar permisos",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Information);
 
             if (respuesta != DialogResult.Yes) return;
 
-            var f = new FormLogin_593CM(esModoReLogin: true);
-            f.ShowDialog(this);
-            if (f.DialogResult == DialogResult.OK)
+            Usuario_593CM usuarioActualizado;
+            var resultado = _usuarioCtrl_593CM.ReLogin_593CM(out usuarioActualizado);
+
+            switch (resultado)
             {
-                ActualizarFooter_593CM();
-                AplicarPermisosPorRol_593CM();
+                case UsuarioBLL_593CM.ResultadoReLogin_593CM.Exitoso:
+                    CerrarFormulariosHijos_593CM();
+                    ActualizarFooter_593CM();
+                    AplicarPermisosPorRol_593CM();
+
+                    MessageBox.Show(
+                        "La sesión fue actualizada correctamente.",
+                        "Re-Login",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    break;
+
+                case UsuarioBLL_593CM.ResultadoReLogin_593CM.SinSesionActiva:
+                    MessageBox.Show(
+                        "No hay una sesión activa para actualizar.",
+                        "Re-Login",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    break;
+
+                case UsuarioBLL_593CM.ResultadoReLogin_593CM.CuentaNoExistente:
+                    MessageBox.Show(
+                        "El usuario actual ya no existe en la base de datos. La sesión será cerrada.",
+                        "Re-Login",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    RedirigirALogin_593CM();
+                    break;
+
+                case UsuarioBLL_593CM.ResultadoReLogin_593CM.CuentaInactivaBloqueada:
+                    MessageBox.Show(
+                        "El usuario actual fue desactivado o bloqueado. La sesión será cerrada.",
+                        "Re-Login",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    RedirigirALogin_593CM();
+                    break;
+
+                case UsuarioBLL_593CM.ResultadoReLogin_593CM.ErrorIntegridad:
+                    MessageBox.Show(
+                        "No se pudo actualizar la sesión porque se detectó un problema de integridad.",
+                        "Re-Login",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                    break;
             }
         }
 
@@ -181,6 +241,22 @@ namespace DIEFER.UI
         {
             tmrReloj_593CM.Stop();
             base.OnFormClosing(e);
+        }
+
+        private void CerrarFormulariosHijos_593CM()
+        {
+            foreach (Form f in MdiChildren)
+                f.Close();
+        }
+
+        private void RedirigirALogin_593CM()
+        {
+            tmrReloj_593CM.Stop();
+
+            var login = new FormLogin_593CM();
+            Hide();
+            login.FormClosed += (s, args) => Close();
+            login.Show();
         }
     }
 }

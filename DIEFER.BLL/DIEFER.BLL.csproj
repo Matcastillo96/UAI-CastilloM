@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <LangVersion>7.3</LangVersion>
@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DIEFER.Servicios\DIEFER.Servicios.csproj" />

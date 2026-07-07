@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using DIEFER.Servicios;
 
-namespace DIEFER.Servicios
+namespace DIEFER.DAL.Interfaces
 {
-    public interface IUsuario_593CM
+    public interface IUsuarioDAL_593CM
     {
         bool ExisteDNI_593CM(string dni);
         bool ExisteLogin_593CM(string login, string dniExcluir = null);
@@ -14,10 +15,16 @@ namespace DIEFER.Servicios
         bool ActualizarActivo_593CM(string dni, bool activo);
         bool ActualizarPassword_593CM(string dni, string nuevoHash);
         List<Usuario_593CM> GetBloqueados_593CM();
-        List<Usuario_593CM> Listar_593CM(bool soloActivos, string filtroDNI = null,
-                             string filtroApellidos = null, string filtroNombre = null,
-                             string filtroEmail = null, string filtroRol = null,
-                             string filtroLogin = null);
+
+        List<Usuario_593CM> Listar_593CM(
+            bool soloActivos,
+            string filtroDNI = null,
+            string filtroApellidos = null,
+            string filtroNombre = null,
+            string filtroEmail = null,
+            string filtroRol = null,
+            string filtroLogin = null);
+
         List<string> GetLoginsParaDV_593CM();
         (string Nombre, string Apellido) BuscarNombreApellidoPorLogin_593CM(string login);
         bool ActualizarIdioma_593CM(string dni, string codigo);

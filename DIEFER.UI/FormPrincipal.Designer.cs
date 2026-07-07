@@ -103,6 +103,10 @@ namespace DIEFER.UI
             this.mnuLogout_593CM.Text   = "Logout";
             this.mnuLogout_593CM.Click += new System.EventHandler(this.mnuLogout_Click_593CM);
 
+            this.mnuAyuda_593CM.Name = "mnuAyuda_593CM";
+            this.mnuAyuda_593CM.Text = "AYUDA";
+            this.mnuAyuda_593CM.Enabled = true;
+
             // Módulos grisados (entregas futuras)
             this.mnuVentas_593CM.Name    = "mnuVentas_593CM";
             this.mnuVentas_593CM.Text    = "VENTAS";
@@ -115,10 +119,6 @@ namespace DIEFER.UI
             this.mnuReportes_593CM.Name    = "mnuReportes_593CM";
             this.mnuReportes_593CM.Text    = "REPORTES";
             this.mnuReportes_593CM.Enabled = false;
-
-            this.mnuAyuda_593CM.Name    = "mnuAyuda_593CM";
-            this.mnuAyuda_593CM.Text    = "AYUDA";
-            this.mnuAyuda_593CM.Enabled = false;
 
             // ── StatusStrip ────────────────────────────────────────────────────────────
 

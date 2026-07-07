@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using DIEFER.DAL;
+using DIEFER.DAL.Interfaces;
 using DIEFER.Servicios;
 // PrintDocument es de System.Drawing — no de System.Windows.Forms. El PrintDialog lo maneja el UI.
 
@@ -12,11 +13,11 @@ namespace DIEFER.BLL
     public class EventoBLL_593CM
     {
         private readonly IEventoDAL_593CM _eventoDAL_593CM;
-        private readonly IUsuario_593CM   _usuarioDAL_593CM;
+        private readonly IUsuarioDAL_593CM   _usuarioDAL_593CM;
 
         public EventoBLL_593CM() : this(new EventoDAL_593CM(), new UsuarioDAL_593CM()) { }
 
-        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuario_593CM usuarioDAL)
+        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuarioDAL_593CM usuarioDAL)
         {
             _eventoDAL_593CM  = eventoDAL;
             _usuarioDAL_593CM = usuarioDAL;

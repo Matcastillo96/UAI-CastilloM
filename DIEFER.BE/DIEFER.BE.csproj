@@ -1,9 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <LangVersion>7.3</LangVersion>
-    <Nullable>disable</Nullable>
-    <AssemblyName>DIEFER.BE</AssemblyName>
-    <RootNamespace>DIEFER.BE</RootNamespace>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
+		<LangVersion>7.3</LangVersion>
+		<Nullable>disable</Nullable>
+		<AssemblyName>DIEFER.BE</AssemblyName>
+		<RootNamespace>DIEFER.BE</RootNamespace>
+	</PropertyGroup>
+	<ItemGroup>
+		<Reference Include="System.Configuration" />
+		<Reference Include="System.Web.Extensions" />
+	</ItemGroup>
 </Project>
