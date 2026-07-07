@@ -14,13 +14,16 @@ namespace DIEFER.BLL
     {
         private readonly IEventoDAL_593CM _eventoDAL_593CM;
         private readonly IUsuarioDAL_593CM   _usuarioDAL_593CM;
+        private readonly DVService_593CM _dvService_593CM;
 
-        public EventoBLL_593CM() : this(new EventoDAL_593CM(), new UsuarioDAL_593CM()) { }
+        public EventoBLL_593CM() : this(new EventoDAL_593CM(), new UsuarioDAL_593CM(), new DVDAL_593CM()) { }
 
-        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuarioDAL_593CM usuarioDAL)
+        public EventoBLL_593CM(IEventoDAL_593CM eventoDAL, IUsuarioDAL_593CM usuarioDAL,
+                               IDVDAL_593CM dvDAL)
         {
             _eventoDAL_593CM  = eventoDAL;
             _usuarioDAL_593CM = usuarioDAL;
+            _dvService_593CM = new DVService_593CM(dvDAL, dvDAL.Proveedores_593CM);
         }
 
         // Punto único de registro — invocado por cada operación que genera un evento
@@ -36,6 +39,10 @@ namespace DIEFER.BLL
                 Criticidad_593CM = criticidad,
             };
             _eventoDAL_593CM.Insertar_593CM(e);
+
+            // Normaliza el DV de EVENTOS después de cada inserción para evitar
+            // falsos positivos en la próxima verificación.
+            _dvService_593CM.RecalcularTabla_593CM("EVENTOS");
         }
 
         public List<Eventos_593CM> GetEventos_593CM(DateTime? fechaIni, DateTime? fechaFin,
