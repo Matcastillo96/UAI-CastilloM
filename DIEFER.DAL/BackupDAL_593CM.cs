@@ -55,11 +55,10 @@ namespace DIEFER.DAL
                         using (var cmd = new SqlCommand(setMultiUser, conn) { CommandTimeout = 300 })
                             cmd.ExecuteNonQuery();
                     }
-                    catch (SqlException ex)
+                    catch
                     {
                         // No relanzar: el restore ya sucedió (o falló) y queremos dejar
                         // la BD en estado usable lo antes posible.
-                        System.Diagnostics.Debug.WriteLine($"Error al restaurar MULTI_USER: {ex.Message}");
                     }
                 }
             }

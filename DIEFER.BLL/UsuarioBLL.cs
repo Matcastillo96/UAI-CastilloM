@@ -320,12 +320,9 @@ namespace DIEFER.BLL
 
         private void ActualizarDV_593CM()
         {
-            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
-                "USUARIO",
-                SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM ?? "Sistema",
-                "Usuario",
-                "Actualizar DV",
-                2);
+            // El evento de negocio ya fue registrado por la operación invocante.
+            // Solo se normaliza el DV de USUARIO (y EVENTOS queda consistente por el registro previo).
+            _dvBLL_593CM.RecalcularTabla_593CM("USUARIO");
         }
 
         // ── Re-Login ───────────────────────────────────────────────────────────────────
