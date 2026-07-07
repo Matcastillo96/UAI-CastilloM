@@ -25,6 +25,7 @@ IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.perfiles')
 GO
 
 -- ── 2. Familia "Administración" que agrupa las patentes de admin ────────────
+
 IF NOT EXISTS (SELECT 1 FROM Familia WHERE Nombre = 'Administración')
     INSERT INTO Familia (Nombre) VALUES ('Administración');
 GO
@@ -41,6 +42,7 @@ WHERE P.Permiso IN ('admin.usuarios', 'admin.bitacora', 'admin.perfiles')
 GO
 
 -- ── 3. Asignar la familia al rol Administrador ──────────────────────────────
+
 DECLARE @idRolAdmin     INT = (SELECT ID_rol     FROM ROLES   WHERE Nombre = 'Administrador');
 DECLARE @idFamiliaAdmin INT = (SELECT ID_familia FROM Familia WHERE Nombre = 'Administración');
 
@@ -52,6 +54,7 @@ ELSE IF NOT EXISTS (SELECT 1 FROM Rol_Familia
 GO
 
 -- ── 4. El rol "Auditor" (si existe) recibe solo la bitácora ─────────────────
+
 DECLARE @idRolAuditor INT = (SELECT ID_rol     FROM ROLES   WHERE Nombre = 'Auditor');
 DECLARE @idPatBitacora INT = (SELECT ID_patente FROM Patente WHERE Permiso = 'admin.bitacora');
 

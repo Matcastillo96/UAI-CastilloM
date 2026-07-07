@@ -354,7 +354,7 @@ namespace DIEFER.BLL
         public bool QuitarFamiliaDeRol_593CM(int idRol, int idFamilia) =>
             _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, idFamilia);
 
-        // ── Helpers internos ────────────────────────────────────────────────────────
+        // ── Helpers internos ─────────────────────────────────────────────────────────
 
         /// <summary>
         /// BFS en memoria sobre el grafo precargado: retorna todos los IDs de
