@@ -56,5 +56,42 @@ namespace DIEFER.DAL
             }
         }
 
+        public bool Renombrar_593CM(int idRol, string nombre)
+        {
+            const string sql = "UPDATE ROLES SET Nombre = @Nombre WHERE ID_rol = @ID";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idRol);
+                cmd.Parameters.AddWithValue("@Nombre", nombre);
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public bool Eliminar_593CM(int idRol)
+        {
+            const string sql = "DELETE FROM ROLES WHERE ID_rol = @ID";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idRol);
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public int ContarUsuarios_593CM(int idRol)
+        {
+            const string sql = "SELECT COUNT(1) FROM USUARIO WHERE ID_rol = @ID";
+
+            using (var conn = ConexionDB_593CM.AbrirConexion_593CM())
+            using (var cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ID", idRol);
+                var result = cmd.ExecuteScalar();
+                return result == null ? 0 : (int)result;
+            }
+        }
     }
 }

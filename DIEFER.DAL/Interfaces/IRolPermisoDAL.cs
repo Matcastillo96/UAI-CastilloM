@@ -19,5 +19,11 @@ namespace DIEFER.DAL.Interfaces
         bool AgregarFamilia_593CM(int idRol, int idFamilia);
         bool QuitarPatente_593CM(int idRol, int idPatente);
         bool QuitarFamilia_593CM(int idRol, int idFamilia);
+
+        /// <summary>Elimina todas las patentes directas asignadas a un rol.</summary>
+        bool QuitarTodasLasPatentes_593CM(int idRol);
+
+        /// <summary>Elimina todas las familias directas asignadas a un rol.</summary>
+        bool QuitarTodasLasFamilias_593CM(int idRol);
     }
 }

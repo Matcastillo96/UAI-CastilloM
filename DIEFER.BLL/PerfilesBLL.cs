@@ -4,6 +4,7 @@ using System.Transactions;
 using DIEFER.DAL;
 using DIEFER.DAL.Interfaces;
 using DIEFER.Servicios;
+using DIEFER.Servicios.Interfaces;
 
 namespace DIEFER.BLL
 {
@@ -19,19 +20,22 @@ namespace DIEFER.BLL
         private readonly IFamiliaDAL_593CM _familiaDAL_593CM;
         private readonly IPatenteDAL_593CM _patenteDAL_593CM;
         private readonly IRolPermisoDAL_593CM _rolPermisoDAL_593CM;
+        private readonly IDVBLL_593CM _dvBLL_593CM;
 
         public PerfilesBLL_593CM()
-            : this(new FamiliaDAL_593CM(), new PatenteDAL_593CM(), new RolPermisoDAL_593CM()) { }
+            : this(new FamiliaDAL_593CM(), new PatenteDAL_593CM(), new RolPermisoDAL_593CM(), null) { }
 
         /// <summary>Constructor para inyección de dependencias (testing).</summary>
         public PerfilesBLL_593CM(
             IFamiliaDAL_593CM familiaDAL,
             IPatenteDAL_593CM patenteDAL,
-            IRolPermisoDAL_593CM rolPermisoDAL)
+            IRolPermisoDAL_593CM rolPermisoDAL,
+            IDVBLL_593CM dvBLL)
         {
             _familiaDAL_593CM = familiaDAL;
             _patenteDAL_593CM = patenteDAL;
             _rolPermisoDAL_593CM = rolPermisoDAL;
+            _dvBLL_593CM = dvBLL ?? new DVBLL_593CM();
         }
 
         // ── Consultas Familia ────────────────────────────────────────────────────────
@@ -106,14 +110,21 @@ namespace DIEFER.BLL
             var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
             var familiaActual = _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
 
-            var idsFamiliasDir = new HashSet<int>(
-                familiaActual.Componentes_593CM
-                    .OfType<Familia_593CM>()
-                    .Select(f => f.ID_familia_593CM));
+            // Si la familia no existe (p. ej. creación inicial), se devuelven todos los ítems.
+            bool esNueva = familiaActual == null;
+
+            var idsFamiliasDir = esNueva
+                ? new HashSet<int>()
+                : new HashSet<int>(
+                    familiaActual.Componentes_593CM
+                        .OfType<Familia_593CM>()
+                        .Select(f => f.ID_familia_593CM));
 
             // Patentes efectivas actuales de la familia:
             // patentes directas + patentes contenidas en subfamilias.
-            var idsEfectivos = BfsPatentes_593CM(idFamilia, grafo);
+            var idsEfectivos = esNueva
+                ? new HashSet<int>()
+                : BfsPatentes_593CM(idFamilia, grafo);
 
             var disponibles = new List<IPermiso_593CM>();
 
@@ -121,7 +132,7 @@ namespace DIEFER.BLL
             {
                 if (f.ID_familia_593CM == idFamilia) continue;
                 if (idsFamiliasDir.Contains(f.ID_familia_593CM)) continue;
-                if (CreariaCirculo_593CM(idFamilia, f.ID_familia_593CM, grafo)) continue;
+                if (!esNueva && CreariaCirculo_593CM(idFamilia, f.ID_familia_593CM, grafo)) continue;
 
                 var idsNuevas = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
 
@@ -206,7 +217,17 @@ namespace DIEFER.BLL
             // Si ya está cubierta directa o indirectamente, no se agrega.
             if (idsEfectivos.Contains(idPatente)) return false;
 
-            return _familiaDAL_593CM.AgregarPatente_593CM(idFamilia, idPatente);
+            bool ok = _familiaDAL_593CM.AgregarPatente_593CM(idFamilia, idPatente);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Familia_Patente",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Agregar Patente a Familia",
+                    2);
+            }
+            return ok;
         }
 
         /// <summary>
@@ -268,18 +289,144 @@ namespace DIEFER.BLL
                 scope.Complete();
             }
 
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia_Familia");
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia_Patente");
+            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                "EVENTOS",
+                LoginActual_593CM(),
+                "Perfiles",
+                "Agregar Sub-Familia",
+                2);
+
             return true;
         }
 
-        public bool QuitarPatenteDeFamilia_593CM(int idFamilia, int idPatente) =>
-            _familiaDAL_593CM.QuitarPatente_593CM(idFamilia, idPatente);
+        public bool QuitarPatenteDeFamilia_593CM(int idFamilia, int idPatente)
+        {
+            bool ok = _familiaDAL_593CM.QuitarPatente_593CM(idFamilia, idPatente);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Familia_Patente",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Quitar Patente de Familia",
+                    2);
+            }
+            return ok;
+        }
 
-        public bool QuitarSubFamiliaDeFamilia_593CM(int idFamiliaPadre, int idFamiliaHija) =>
-            _familiaDAL_593CM.QuitarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija);
+        public bool QuitarSubFamiliaDeFamilia_593CM(int idFamiliaPadre, int idFamiliaHija)
+        {
+            bool ok = _familiaDAL_593CM.QuitarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Familia_Familia",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Quitar Sub-Familia",
+                    2);
+            }
+            return ok;
+        }
 
         /// <summary>Crea una familia. Retorna el ID generado, o -1 si falla.</summary>
         public int CrearFamilia_593CM(string nombre) =>
             _familiaDAL_593CM.Crear_593CM(nombre);
+
+        public enum ResultadoCrearFamilia_593CM { Exitoso, NombreRequerido, PatenteRequerida, NombreDuplicado }
+
+        /// <summary>
+        /// Crea una familia exigiendo al menos una patente. No permite familias vacías.
+        /// </summary>
+        public ResultadoCrearFamilia_593CM CrearFamiliaConPatentes_593CM(string nombre,
+                                                                         IEnumerable<int> idsPatente,
+                                                                         out int idFamiliaCreada)
+        {
+            idFamiliaCreada = -1;
+
+            if (string.IsNullOrWhiteSpace(nombre))
+                return ResultadoCrearFamilia_593CM.NombreRequerido;
+
+            var patentes = idsPatente ?? Enumerable.Empty<int>();
+            if (!patentes.Any())
+                return ResultadoCrearFamilia_593CM.PatenteRequerida;
+
+            int id = _familiaDAL_593CM.Crear_593CM(nombre.Trim());
+            if (id < 0)
+                return ResultadoCrearFamilia_593CM.NombreDuplicado;
+
+            idFamiliaCreada = id;
+
+            foreach (int idPatente in patentes.Distinct())
+                _familiaDAL_593CM.AgregarPatente_593CM(id, idPatente);
+
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia");
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia_Patente");
+            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                "EVENTOS",
+                LoginActual_593CM(),
+                "Perfiles",
+                "Crear Familia",
+                2);
+
+            return ResultadoCrearFamilia_593CM.Exitoso;
+        }
+
+        public enum ResultadoRenombrarFamilia_593CM { Exitoso, NombreRequerido, NombreDuplicado }
+
+        public ResultadoRenombrarFamilia_593CM RenombrarFamilia_593CM(int idFamilia, string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                return ResultadoRenombrarFamilia_593CM.NombreRequerido;
+
+            if (!_familiaDAL_593CM.Renombrar_593CM(idFamilia, nombre.Trim()))
+                return ResultadoRenombrarFamilia_593CM.NombreDuplicado;
+
+            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                "Familia",
+                LoginActual_593CM(),
+                "Perfiles",
+                "Renombrar Familia",
+                2);
+
+            return ResultadoRenombrarFamilia_593CM.Exitoso;
+        }
+
+        public enum ResultadoEliminarFamilia_593CM { Exitoso, Referenciada }
+
+        public ResultadoEliminarFamilia_593CM EliminarFamilia_593CM(int idFamilia)
+        {
+            int referencias = _familiaDAL_593CM.ContarReferencias_593CM(idFamilia);
+            if (referencias > 0)
+                return ResultadoEliminarFamilia_593CM.Referenciada;
+
+            // Eliminar vínculos propios como padre.
+            var familia = _familiaDAL_593CM.CargarConComponentes_593CM(idFamilia);
+            if (familia != null)
+            {
+                foreach (var p in familia.Componentes_593CM.OfType<Patente_593CM>())
+                    _familiaDAL_593CM.QuitarPatente_593CM(idFamilia, p.ID_patente_593CM);
+
+                foreach (var f in familia.Componentes_593CM.OfType<Familia_593CM>())
+                    _familiaDAL_593CM.QuitarSubFamilia_593CM(idFamilia, f.ID_familia_593CM);
+            }
+
+            _familiaDAL_593CM.Eliminar_593CM(idFamilia);
+
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia");
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia_Patente");
+            _dvBLL_593CM.RecalcularTabla_593CM("Familia_Familia");
+            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                "EVENTOS",
+                LoginActual_593CM(),
+                "Perfiles",
+                "Eliminar Familia",
+                2);
+
+            return ResultadoEliminarFamilia_593CM.Exitoso;
+        }
 
         // ── Asignación Rol ────────────────────────────────────────────────────────────
 
@@ -299,7 +446,17 @@ namespace DIEFER.BLL
             // Si la patente ya está directa o cubierta por una familia, no se agrega.
             if (idsEfectivos.Contains(idPatente)) return false;
 
-            return _rolPermisoDAL_593CM.AgregarPatente_593CM(idRol, idPatente);
+            bool ok = _rolPermisoDAL_593CM.AgregarPatente_593CM(idRol, idPatente);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Rol_Patente",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Agregar Patente a Rol",
+                    2);
+            }
+            return ok;
         }
 
         /// <summary>
@@ -345,14 +502,47 @@ namespace DIEFER.BLL
                 scope.Complete();
             }
 
+            _dvBLL_593CM.RecalcularTabla_593CM("Rol_Familia");
+            _dvBLL_593CM.RecalcularTabla_593CM("Rol_Patente");
+            _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                "EVENTOS",
+                LoginActual_593CM(),
+                "Perfiles",
+                "Agregar Familia a Rol",
+                2);
+
             return true;
         }
 
-        public bool QuitarPatenteDeRol_593CM(int idRol, int idPatente) =>
-            _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, idPatente);
+        public bool QuitarPatenteDeRol_593CM(int idRol, int idPatente)
+        {
+            bool ok = _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, idPatente);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Rol_Patente",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Quitar Patente de Rol",
+                    2);
+            }
+            return ok;
+        }
 
-        public bool QuitarFamiliaDeRol_593CM(int idRol, int idFamilia) =>
-            _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, idFamilia);
+        public bool QuitarFamiliaDeRol_593CM(int idRol, int idFamilia)
+        {
+            bool ok = _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, idFamilia);
+            if (ok)
+            {
+                _dvBLL_593CM.RecalcularTablaConBitacora_593CM(
+                    "Rol_Familia",
+                    LoginActual_593CM(),
+                    "Perfiles",
+                    "Quitar Familia de Rol",
+                    2);
+            }
+            return ok;
+        }
 
         // ── Helpers internos ─────────────────────────────────────────────────────────
 
@@ -415,6 +605,12 @@ namespace DIEFER.BLL
             }
 
             return false;
+        }
+
+        private static string LoginActual_593CM()
+        {
+            return SessionManager_593CM.GetInstancia_593CM().UsuarioActual_593CM?.Login_593CM
+                   ?? "Sistema";
         }
     }
 }
