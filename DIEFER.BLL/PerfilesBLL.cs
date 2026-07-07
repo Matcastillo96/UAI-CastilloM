@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 using DIEFER.DAL;
 using DIEFER.DAL.Interfaces;
 using DIEFER.Servicios;
@@ -81,7 +80,7 @@ namespace DIEFER.BLL
 
             foreach (var f in _rolPermisoDAL_593CM.ObtenerFamiliasDirectas_593CM(idRol))
             {
-                foreach (var idP in BfsPatentes_593CM(f.ID_familia_593CM, grafo))
+                foreach (var idP in GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo))
                 {
                     if (todasPatentes.TryGetValue(idP, out string permiso) &&
                         !string.IsNullOrEmpty(permiso))
@@ -113,7 +112,7 @@ namespace DIEFER.BLL
 
             // Patentes efectivas actuales de la familia:
             // patentes directas + patentes contenidas en subfamilias.
-            var idsEfectivos = BfsPatentes_593CM(idFamilia, grafo);
+            var idsEfectivos = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(idFamilia, grafo);
 
             var disponibles = new List<IPermiso_593CM>();
 
@@ -121,9 +120,9 @@ namespace DIEFER.BLL
             {
                 if (f.ID_familia_593CM == idFamilia) continue;
                 if (idsFamiliasDir.Contains(f.ID_familia_593CM)) continue;
-                if (CreariaCirculo_593CM(idFamilia, f.ID_familia_593CM, grafo)) continue;
+                if (GrafoFamiliasAlgoritmos_593CM.CreariaCirculo_593CM(idFamilia, f.ID_familia_593CM, grafo)) continue;
 
-                var idsNuevas = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+                var idsNuevas = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo);
 
                 // Si la familia candidata no aporta ninguna patente nueva, no se muestra.
                 if (idsNuevas.Count > 0 && idsNuevas.IsSubsetOf(idsEfectivos)) continue;
@@ -164,7 +163,7 @@ namespace DIEFER.BLL
                 patentesDir.Select(p => p.ID_patente_593CM));
 
             foreach (var f in familiasDir)
-                idsEfectivos.UnionWith(BfsPatentes_593CM(f.ID_familia_593CM, grafo));
+                idsEfectivos.UnionWith(GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo));
 
             var disponibles = new List<IPermiso_593CM>();
 
@@ -172,7 +171,7 @@ namespace DIEFER.BLL
             {
                 if (idsFamiliasDir.Contains(f.ID_familia_593CM)) continue;
 
-                var idsF = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+                var idsF = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo);
 
                 // Si esta familia no aporta ninguna patente nueva, no se muestra.
                 if (idsF.Count > 0 && idsF.IsSubsetOf(idsEfectivos)) continue;
@@ -201,7 +200,7 @@ namespace DIEFER.BLL
 
             // Patentes efectivas actuales de la familia:
             // directas + las que vienen por subfamilias.
-            var idsEfectivos = BfsPatentes_593CM(idFamilia, grafo);
+            var idsEfectivos = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(idFamilia, grafo);
 
             // Si ya está cubierta directa o indirectamente, no se agrega.
             if (idsEfectivos.Contains(idPatente)) return false;
@@ -220,7 +219,7 @@ namespace DIEFER.BLL
 
             var grafo = _familiaDAL_593CM.CargarGrafo_593CM();
 
-            if (CreariaCirculo_593CM(idFamiliaPadre, idFamiliaHija, grafo)) return false;
+            if (GrafoFamiliasAlgoritmos_593CM.CreariaCirculo_593CM(idFamiliaPadre, idFamiliaHija, grafo)) return false;
 
             var familiaPadre = _familiaDAL_593CM.CargarConComponentes_593CM(idFamiliaPadre);
 
@@ -236,39 +235,27 @@ namespace DIEFER.BLL
                 return false;
 
             // Patentes que aporta la familia hija nueva.
-            var idsHija = BfsPatentes_593CM(idFamiliaHija, grafo);
+            var idsHija = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(idFamiliaHija, grafo);
 
-            using (var scope = new TransactionScope())
-            {
-                if (!_familiaDAL_593CM.AgregarSubFamilia_593CM(idFamiliaPadre, idFamiliaHija))
-                    return false;
+            // Patentes directas del padre que la nueva subfamilia ya cubre.
+            var idsPatentesAQuitar = patentesDirectasPadre
+                .Where(p => idsHija.Contains(p.ID_patente_593CM))
+                .Select(p => p.ID_patente_593CM)
+                .ToList();
 
-                // 1) Quita patentes directas del padre que la nueva subfamilia ya cubre.
-                foreach (var p in patentesDirectasPadre)
+            // Subfamilias directas del padre que quedaron completamente cubiertas
+            // por la nueva subfamilia.
+            var idsFamiliasAQuitar = familiasDirectasPadre
+                .Where(f =>
                 {
-                    if (idsHija.Contains(p.ID_patente_593CM))
-                        _familiaDAL_593CM.QuitarPatente_593CM(idFamiliaPadre, p.ID_patente_593CM);
-                }
+                    var idsFamiliaExistente = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+                    return idsFamiliaExistente.Count > 0 && idsFamiliaExistente.IsSubsetOf(idsHija);
+                })
+                .Select(f => f.ID_familia_593CM)
+                .ToList();
 
-                // 2) Quita subfamilias directas del padre que quedaron completamente
-                // cubiertas por la nueva subfamilia.
-                foreach (var f in familiasDirectasPadre)
-                {
-                    var idsFamiliaExistente = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
-
-                    if (idsFamiliaExistente.Count > 0 &&
-                        idsFamiliaExistente.IsSubsetOf(idsHija))
-                    {
-                        _familiaDAL_593CM.QuitarSubFamilia_593CM(
-                            idFamiliaPadre,
-                            f.ID_familia_593CM);
-                    }
-                }
-
-                scope.Complete();
-            }
-
-            return true;
+            return _familiaDAL_593CM.AgregarSubFamiliaConLimpieza_593CM(
+                idFamiliaPadre, idFamiliaHija, idsPatentesAQuitar, idsFamiliasAQuitar);
         }
 
         public bool QuitarPatenteDeFamilia_593CM(int idFamilia, int idPatente) =>
@@ -294,7 +281,7 @@ namespace DIEFER.BLL
                 patentesDir.Select(p => p.ID_patente_593CM));
 
             foreach (var f in familiasDir)
-                idsEfectivos.UnionWith(BfsPatentes_593CM(f.ID_familia_593CM, grafo));
+                idsEfectivos.UnionWith(GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo));
 
             // Si la patente ya está directa o cubierta por una familia, no se agrega.
             if (idsEfectivos.Contains(idPatente)) return false;
@@ -315,37 +302,27 @@ namespace DIEFER.BLL
             var patentesDir = _rolPermisoDAL_593CM.ObtenerPatentesDirectas_593CM(idRol);
 
             // Patentes que aporta la familia nueva.
-            var idsNuevas = BfsPatentes_593CM(idFamilia, grafo);
+            var idsNuevas = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(idFamilia, grafo);
 
-            using (var scope = new TransactionScope())
-            {
-                if (!_rolPermisoDAL_593CM.AgregarFamilia_593CM(idRol, idFamilia))
-                    return false;
+            // Patentes directas del rol que la nueva familia ya cubre.
+            var idsPatentesAQuitar = patentesDir
+                .Where(p => idsNuevas.Contains(p.ID_patente_593CM))
+                .Select(p => p.ID_patente_593CM)
+                .ToList();
 
-                // 1) Quita patentes directas que la nueva familia ya cubre.
-                foreach (var p in patentesDir)
+            // Familias directas del rol que quedaron completamente cubiertas
+            // por la nueva familia.
+            var idsFamiliasAQuitar = familiasDir
+                .Where(f =>
                 {
-                    if (idsNuevas.Contains(p.ID_patente_593CM))
-                        _rolPermisoDAL_593CM.QuitarPatente_593CM(idRol, p.ID_patente_593CM);
-                }
+                    var idsFamiliaExistente = GrafoFamiliasAlgoritmos_593CM.BfsPatentes_593CM(f.ID_familia_593CM, grafo);
+                    return idsFamiliaExistente.Count > 0 && idsFamiliaExistente.IsSubsetOf(idsNuevas);
+                })
+                .Select(f => f.ID_familia_593CM)
+                .ToList();
 
-                // 2) Quita familias directas que quedaron completamente cubiertas
-                // por la nueva familia.
-                foreach (var f in familiasDir)
-                {
-                    var idsFamiliaExistente = BfsPatentes_593CM(f.ID_familia_593CM, grafo);
-
-                    if (idsFamiliaExistente.Count > 0 &&
-                        idsFamiliaExistente.IsSubsetOf(idsNuevas))
-                    {
-                        _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, f.ID_familia_593CM);
-                    }
-                }
-
-                scope.Complete();
-            }
-
-            return true;
+            return _rolPermisoDAL_593CM.AgregarFamiliaConLimpieza_593CM(
+                idRol, idFamilia, idsPatentesAQuitar, idsFamiliasAQuitar);
         }
 
         public bool QuitarPatenteDeRol_593CM(int idRol, int idPatente) =>
@@ -353,68 +330,5 @@ namespace DIEFER.BLL
 
         public bool QuitarFamiliaDeRol_593CM(int idRol, int idFamilia) =>
             _rolPermisoDAL_593CM.QuitarFamilia_593CM(idRol, idFamilia);
-
-        // ── Helpers internos ─────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// BFS en memoria sobre el grafo precargado: retorna todos los IDs de
-        /// patentes alcanzables desde la familia indicada.
-        /// </summary>
-        private static HashSet<int> BfsPatentes_593CM(int idFamilia, GrafoFamilias_593CM grafo)
-        {
-            var resultado = new HashSet<int>();
-            var visitados = new HashSet<int>();
-            var cola = new Queue<int>();
-
-            cola.Enqueue(idFamilia);
-
-            while (cola.Count > 0)
-            {
-                int actual = cola.Dequeue();
-                if (!visitados.Add(actual)) continue;
-
-                foreach (var idP in grafo.GetPatentes_593CM(actual))
-                    resultado.Add(idP);
-
-                foreach (var idH in grafo.GetHijas_593CM(actual))
-                {
-                    if (!visitados.Contains(idH))
-                        cola.Enqueue(idH);
-                }
-            }
-
-            return resultado;
-        }
-
-        /// <summary>Verifica en ambas direcciones si vincular padre→hija generaría un ciclo.</summary>
-        private static bool CreariaCirculo_593CM(int idPadre, int idHija, GrafoFamilias_593CM grafo)
-        {
-            return DesciendeDe_593CM(idPadre, idHija, grafo)
-                || DesciendeDe_593CM(idHija, idPadre, grafo);
-        }
-
-        /// <summary>BFS: true si idFamilia desciende (directa o transitivamente) de idAncestro.</summary>
-        private static bool DesciendeDe_593CM(int idFamilia, int idAncestro, GrafoFamilias_593CM grafo)
-        {
-            var visitados = new HashSet<int>();
-            var cola = new Queue<int>();
-
-            cola.Enqueue(idFamilia);
-
-            while (cola.Count > 0)
-            {
-                int actual = cola.Dequeue();
-                if (!visitados.Add(actual)) continue;
-                if (actual == idAncestro) return true;
-
-                foreach (var hijo in grafo.GetHijas_593CM(actual))
-                {
-                    if (!visitados.Contains(hijo))
-                        cola.Enqueue(hijo);
-                }
-            }
-
-            return false;
-        }
     }
 }

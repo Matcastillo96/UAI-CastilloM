@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DIEFER.DAL;
+using DIEFER.DAL.Interfaces;
 using DIEFER.Servicios;
 
 namespace DIEFER.BLL

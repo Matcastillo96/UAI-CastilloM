@@ -14,14 +14,14 @@ GO
 
 -- ── 1. Patentes con sus cadenas de permiso ──────────────────────────────────
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.usuarios')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Usuarios', 'admin.usuarios');
+IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'USUARIO_ABM')
+    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Usuarios', 'USUARIO_ABM');
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.bitacora')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Bitácora de Eventos', 'admin.bitacora');
+IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'BITACORA_GESTIONAR')
+    INSERT INTO Patente (Nombre, Permiso) VALUES ('Bitácora de Eventos', 'BITACORA_GESTIONAR');
 
-IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'admin.perfiles')
-    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Perfiles', 'admin.perfiles');
+IF NOT EXISTS (SELECT 1 FROM Patente WHERE Permiso = 'PERFILES_GESTIONAR')
+    INSERT INTO Patente (Nombre, Permiso) VALUES ('Gestión de Perfiles', 'PERFILES_GESTIONAR');
 GO
 
 -- ── 2. Familia "Administración" que agrupa las patentes de admin ────────────
@@ -35,7 +35,7 @@ DECLARE @idFamiliaAdmin INT = (SELECT ID_familia FROM Familia WHERE Nombre = 'Ad
 INSERT INTO Familia_Patente (ID_familia, ID_patente)
 SELECT @idFamiliaAdmin, P.ID_patente
 FROM Patente P
-WHERE P.Permiso IN ('admin.usuarios', 'admin.bitacora', 'admin.perfiles')
+WHERE P.Permiso IN ('USUARIO_ABM', 'BITACORA_GESTIONAR', 'PERFILES_GESTIONAR')
   AND NOT EXISTS (SELECT 1 FROM Familia_Patente FP
                   WHERE FP.ID_familia = @idFamiliaAdmin
                     AND FP.ID_patente = P.ID_patente);
@@ -56,7 +56,7 @@ GO
 -- ── 4. El rol "Auditor" (si existe) recibe solo la bitácora ─────────────────
 
 DECLARE @idRolAuditor INT = (SELECT ID_rol     FROM ROLES   WHERE Nombre = 'Auditor');
-DECLARE @idPatBitacora INT = (SELECT ID_patente FROM Patente WHERE Permiso = 'admin.bitacora');
+DECLARE @idPatBitacora INT = (SELECT ID_patente FROM Patente WHERE Permiso = 'BITACORA_GESTIONAR');
 
 IF @idRolAuditor IS NOT NULL
    AND NOT EXISTS (SELECT 1 FROM Rol_Patente

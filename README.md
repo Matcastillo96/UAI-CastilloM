@@ -13,7 +13,7 @@ DIEFER.Servicios  →  Entidades de dominio, interfaces y servicios transversale
 ```
 
 Reglas de dependencia: `UI → BLL → DAL → Servicios`. Las interfaces de acceso a
-datos viven en `DIEFER.Servicios/Interfaces/` para invertir la dependencia
+datos viven en `DIEFER.DAL/Interfaces/` para invertir la dependencia
 (la BLL depende de contratos, no de implementaciones concretas).
 
 ## Patrones de diseño aplicados
@@ -23,7 +23,7 @@ datos viven en `DIEFER.Servicios/Interfaces/` para invertir la dependencia
 | **Composite** | `IPermiso_593CM` (component), `Patente_593CM` (leaf), `Familia_593CM` (composite) | Componer permisos en jerarquías arbitrarias |
 | **Observer** | `IIdiomaObserver_593CM` + `IdiomaService_593CM` | Internacionalización reactiva de la UI |
 | **Singleton** | `SessionManager_593CM` (thread-safe, double-checked locking) | Estado único de la sesión activa |
-| **Repository** | Interfaces `IFamilia_593CM`, `IRol_593CM`, `IUsuario_593CM`, etc. | Abstraer el acceso a datos |
+| **Repository** | Interfaces `IFamiliaDAL_593CM`, `IRolDAL_593CM`, `IUsuarioDAL_593CM`, etc. | Abstraer el acceso a datos |
 
 ## Decisiones de diseño relevantes
 
@@ -34,10 +34,13 @@ datos viven en `DIEFER.Servicios/Interfaces/` para invertir la dependencia
 - **Prevención de ciclos**: antes de vincular dos familias se verifica en ambas
   direcciones que no se genere un ciclo en el grafo.
 - **Operaciones atómicas**: las asignaciones multi-paso (agregar familia +
-  depurar patentes redundantes) se ejecutan dentro de `TransactionScope`.
+  depurar patentes/familias redundantes) se ejecutan en una única transacción
+  SQL nativa dentro del DAL (una sola `SqlConnection`/`SqlTransaction`), para
+  evitar que el uso de `TransactionScope` con múltiples conexiones fuerce una
+  promoción a transacción distribuida (MSDTC).
 - **Permisos dinámicos**: los menús de la UI se habilitan según las cadenas de
-  permiso (`admin.usuarios`, `admin.bitacora`, `admin.perfiles`) alcanzables
-  desde el rol del usuario — sin roles hardcodeados en el código.
+  permiso (`USUARIO_ABM`, `BITACORA_GESTIONAR`, `PERFILES_GESTIONAR`, etc.)
+  alcanzables desde el rol del usuario — sin roles hardcodeados en el código.
 
 ## Puesta en marcha
 
